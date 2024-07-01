@@ -2,6 +2,7 @@ package main.java.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 
 public class WindowApp extends JFrame {
     private final JPanel controlPanelLeft;
@@ -39,11 +40,11 @@ public class WindowApp extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         add(controlPanelLeft, gbc);
 
-        JButton constructButton = createButton("src/main/resources/gui_icons/construct.png");
-        JButton deleteButton = createButton("src/main/resources/gui_icons/delete.png");
-        JButton deleteAllButton = createButton("src/main/resources/gui_icons/delete_all.png");
-        JButton importButton = createButton("src/main/resources/gui_icons/import.png");
-        JButton exportButton = createButton("src/main/resources/gui_icons/export.png");
+        JButton constructButton = createButton("/gui_icons/construct.png");
+        JButton deleteButton = createButton("/gui_icons/delete.png");
+        JButton deleteAllButton = createButton("/gui_icons/delete_all.png");
+        JButton importButton = createButton("/gui_icons/import.png");
+        JButton exportButton = createButton("/gui_icons/export.png");
 
         controlPanelLeft.add(constructButton);
         controlPanelLeft.add(deleteButton);
@@ -65,9 +66,9 @@ public class WindowApp extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         add(controlPanelRight, gbc);
 
-        JButton runButton = createButton("src/main/resources/gui_icons/run.png");
-        JButton stepBackButton = createButton("src/main/resources/gui_icons/step_back.png");
-        JButton stepForwardButton = createButton("src/main/resources/gui_icons/step_forward.png");
+        JButton runButton = createButton("/gui_icons/run.png");
+        JButton stepBackButton = createButton("/gui_icons/step_back.png");
+        JButton stepForwardButton = createButton("/gui_icons/step_forward.png");
 
         RoundedPanel leftPanel = new RoundedPanel();
         leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -117,7 +118,13 @@ public class WindowApp extends JFrame {
     }
 
     private JButton createButton(String iconPath) {
-        ImageIcon icon = new ImageIcon(iconPath);
+        URL iconURL = getClass().getResource(iconPath);
+        if (iconURL == null) {
+            System.err.println("Could not find icon: " + iconPath);
+            return new JButton();
+        }
+
+        ImageIcon icon = new ImageIcon(iconURL);
         Image img = icon.getImage();
         Image resizedImg = img.getScaledInstance(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE, Image.SCALE_SMOOTH);
         icon = new ImageIcon(resizedImg);
@@ -127,4 +134,5 @@ public class WindowApp extends JFrame {
         button.setBorderPainted(false);
         return button;
     }
+
 }
