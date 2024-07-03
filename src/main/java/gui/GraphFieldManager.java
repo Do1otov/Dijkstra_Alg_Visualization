@@ -151,7 +151,7 @@ public class GraphFieldManager {
 
     private Vertex getVertexAt(Point point) {
         for (Vertex vertex : app.getGraph().getVertices()) {
-            if (Math.pow(point.x - vertex.getX(), 2) + Math.pow(point.y - vertex.getY(), 2) <= Math.pow(10, 2)) {
+            if (Math.pow(point.x - vertex.getX(), 2) + Math.pow(point.y - vertex.getY(), 2) <= Math.pow(GUISettings.VERTEX_RADIUS, 2)) {
                 return vertex;
             }
         }
@@ -181,21 +181,23 @@ public class GraphFieldManager {
         @Override
         public void mouseClicked(MouseEvent e) {
             if (app.getControlPanelsManager().getEditButton().isSelected()) {
-                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
-                    addVertex(e.getPoint());
-                } else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
+                if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
                     if (firstVertex == null) {
                         firstVertex = getVertexAt(e.getPoint());
-                        if (firstVertex != null) {
+                        if (firstVertex == null) {
+                            addVertex(e.getPoint());
+                        } else {
                             graphField.repaint();
                         }
                     } else {
                         Vertex secondVertex = getVertexAt(e.getPoint());
                         if (secondVertex != null && !secondVertex.equals(firstVertex)) {
                             addEdge(firstVertex, secondVertex);
+                            firstVertex = null;
+                            graphField.repaint();
+                        } else if (secondVertex == null) {
+                            firstVertex = null;
                         }
-                        firstVertex = null;
-                        graphField.repaint();
                     }
                 } else if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 1) {
                     Edge edge = getEdgeAt(e.getPoint());
@@ -215,9 +217,6 @@ public class GraphFieldManager {
                             }
                         }
                     }
-                } else if (SwingUtilities.isLeftMouseButton(e) && firstVertex != null) {
-                    firstVertex = null;
-                    graphField.repaint();
                 }
             } else if (app.getControlPanelsManager().getDeleteButton().isSelected()) {
                 if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
