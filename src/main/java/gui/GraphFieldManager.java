@@ -78,6 +78,7 @@ public class GraphFieldManager {
                 return vertex;
             }
         }
+        app.resetRunDijkstra();
         return null;
     }
 
@@ -159,7 +160,6 @@ public class GraphFieldManager {
                         }
                     }
                 }
-                app.resetRunDijkstra();
             }
             g2.dispose();
         }
@@ -263,15 +263,7 @@ public class GraphFieldManager {
     private class MouseMotionListener extends MouseMotionAdapter {
         @Override
         public void mouseDragged(MouseEvent e) {
-            if (app.getControlPanelsManager().getEditButton().isSelected() && selectedVertex != null) {
-                int deltaX = e.getX() - initClick.x;
-                int deltaY = e.getY() - initClick.y;
-                selectedVertex.setX(selectedVertex.getX() + deltaX);
-                selectedVertex.setY(selectedVertex.getY() + deltaY);
-                initClick = e.getPoint();
-                app.resetRunDijkstra();
-                graphField.repaint();
-            } else if (app.getControlPanelsManager().getDeleteButton().isSelected() && selectedVertex != null) {
+            if (selectedVertex != null && (app.getControlPanelsManager().getEditButton().isSelected() || app.getControlPanelsManager().getDeleteButton().isSelected())) {
                 int deltaX = e.getX() - initClick.x;
                 int deltaY = e.getY() - initClick.y;
                 selectedVertex.setX(selectedVertex.getX() + deltaX);
