@@ -10,7 +10,6 @@ import java.awt.*;
 public class App extends JFrame {
     private final GridBagConstraints gbc;
 
-    private boolean isDirected;
     private final JPanel graphField;
     private DirectedGraph graph;
 
@@ -40,14 +39,9 @@ public class App extends JFrame {
         controlPanelsManager = new ControlPanelsManager(this);
         graphFieldManager = new GraphFieldManager(this);
 
-        this.isDirected = true;
         this.graphField = graphFieldManager.getGraphField();
         this.graph = new DirectedGraph();
         this.isRunDijkstra = false;
-    }
-
-    public void setGraphDirection(boolean isDirected) {
-        this.isDirected = isDirected;
     }
 
     public void setGraph(DirectedGraph graph) {
@@ -56,10 +50,6 @@ public class App extends JFrame {
 
     public GridBagConstraints getGBC() {
         return gbc;
-    }
-
-    public boolean graphIsDirected() {
-        return isDirected;
     }
 
     public JPanel getGraphField() {
@@ -85,7 +75,7 @@ public class App extends JFrame {
     public void runDijkstra() {
         Vertex startVertex = graphFieldManager.getFirstVertex();
         if (startVertex == null) {
-            CustomMessageDialog.showMessageDialog(this, "Error", "Start vertex is not selected.", 250, 100);
+            CustomMessageDialog.showMessageDialog(graphField, "Error", "Start vertex is not selected.", 250, 100);
             return;
         }
 
@@ -110,6 +100,12 @@ public class App extends JFrame {
     }
 
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(() -> {
             App app = new App();
             app.setVisible(true);

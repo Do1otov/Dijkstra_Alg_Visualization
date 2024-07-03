@@ -3,6 +3,11 @@ package model;
 import java.util.List;
 
 public class UndirectedGraph extends DirectedGraph {
+    public UndirectedGraph() {
+        super();
+        this.isDirected = false;
+    }
+
     @Override
     public void setEdgeWeight(Edge edge, Integer weight) {
         super.setEdgeWeight(edge, weight);

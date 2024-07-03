@@ -115,7 +115,7 @@ public class GraphFieldManager {
                     Point intersection = getIntersection(from, to);
                     g2.setColor(edge.getColor());
                     g2.drawLine(from.x, from.y, intersection.x, intersection.y);
-                    if (app.graphIsDirected()) {
+                    if (app.getGraph().isDirected()) {
                         drawArrow(g2, from.x, from.y, intersection.x, intersection.y);
                     }
                 }

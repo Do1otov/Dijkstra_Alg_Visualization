@@ -5,16 +5,26 @@ import java.util.*;
 public class DirectedGraph {
     private final Map<UUID, Vertex> vertices;
     private final Map<Vertex, List<Edge>> adjacencyList;
+    protected boolean isDirected;
     private Integer nextLabel;
 
     public DirectedGraph() {
         this.vertices = new HashMap<>();
         this.adjacencyList = new HashMap<>();
+        this.isDirected = true;
         this.nextLabel = 1;
+    }
+
+    public Vertex getVertexById(UUID id) {
+        return vertices.get(id);
     }
 
     public void setEdgeWeight(Edge edge, Integer weight) {
         edge.setWeight(weight);
+    }
+
+    public boolean isDirected() {
+        return isDirected;
     }
 
     public List<Vertex> getVertices() {
@@ -26,7 +36,14 @@ public class DirectedGraph {
     }
 
     public void addVertex(Vertex vertex) {
-        vertex.setLabel(String.valueOf(nextLabel++));
+        if (vertex.getLabel() == null || vertex.getLabel().isEmpty()) {
+            vertex.setLabel(String.valueOf(nextLabel++));
+        } else {
+            int vertexLabel = Integer.parseInt(vertex.getLabel());
+            if (vertexLabel >= nextLabel) {
+                nextLabel = vertexLabel + 1;
+            }
+        }
         vertices.put(vertex.getId(), vertex);
         adjacencyList.put(vertex, new ArrayList<>());
     }
@@ -63,6 +80,65 @@ public class DirectedGraph {
         vertices.clear();
         adjacencyList.clear();
         nextLabel = 1;
+    }
+
+    public String toJSON() {
+        StringBuilder verticesJSON = new StringBuilder();
+        StringBuilder edgesJSON = new StringBuilder();
+
+        for (Vertex vertex : vertices.values()) {
+            verticesJSON.append(vertex.toJSON()).append(",");
+        }
+
+        for (List<Edge> edges : adjacencyList.values()) {
+            for (Edge edge : edges) {
+                edgesJSON.append(edge.toJSON()).append(",");
+            }
+        }
+
+        if (!verticesJSON.isEmpty()) verticesJSON.setLength(verticesJSON.length() - 1);
+        if (!edgesJSON.isEmpty()) edgesJSON.setLength(edgesJSON.length() - 1);
+
+        return String.format("{\"isDirected\":%b,\"nextLabel\":%d,\"vertices\":[%s],\"edges\":[%s]}",
+                isDirected, nextLabel, verticesJSON, edgesJSON);
+    }
+
+    public static DirectedGraph fromJSON(String json) {
+        DirectedGraph graph = new DirectedGraph();
+        json = json.trim();
+
+        String isDirectedStr = json.substring(json.indexOf("\"isDirected\":") + 13, json.indexOf(",", json.indexOf("\"isDirected\":")));
+        graph.isDirected = Boolean.parseBoolean(isDirectedStr.trim());
+
+        String nextLabelStr = json.substring(json.indexOf("\"nextLabel\":") + 12, json.indexOf(",", json.indexOf("\"nextLabel\":")));
+        graph.nextLabel = Integer.parseInt(nextLabelStr.trim());
+
+        int verticesStart = json.indexOf("\"vertices\":[") + 12;
+        int verticesEnd = json.indexOf("],", verticesStart);
+        String verticesData = json.substring(verticesStart, verticesEnd);
+
+        if (!verticesData.isEmpty()) {
+            String[] vertexArray = verticesData.split("\\},");
+            for (String vertexData : vertexArray) {
+                vertexData = vertexData.endsWith("}") ? vertexData : vertexData + "}";
+                Vertex vertex = Vertex.fromJSON(vertexData);
+                graph.addVertex(vertex);
+            }
+        }
+
+        int edgesStart = json.indexOf("\"edges\":[") + 9;
+        int edgesEnd = json.lastIndexOf("]");
+        String edgesData = json.substring(edgesStart, edgesEnd);
+
+        if (!edgesData.isEmpty()) {
+            String[] edgeArray = edgesData.split("\\},");
+            for (String edgeData : edgeArray) {
+                edgeData = edgeData.endsWith("}") ? edgeData : edgeData + "}";
+                Edge edge = Edge.fromJSON(edgeData, graph);
+                graph.addEdge(edge);
+            }
+        }
+        return graph;
     }
     
     private void reassignLabels() {

@@ -10,6 +10,8 @@ public class GUISettings {
 
     public static final Color GRAPH_FIELD_COLOR = new Color(255, 255, 255);
 
+    public static final Color DIALOG_BACKGROUND_COLOR = new Color(255, 255, 255);
+
     public static final Color TITLE_COLOR = Color.BLACK;
 
 

@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.UUID;
 
 public class Vertex {
-    private final UUID id;
+    private UUID id;
     private String label;
     private Integer x;
     private Integer y;
@@ -52,5 +52,25 @@ public class Vertex {
 
     public Color getColor() {
         return color;
+    }
+
+    public String toJSON() {
+        return String.format(
+                "{\"id\":\"%s\",\"label\":\"%s\",\"x\":%d,\"y\":%d,\"color\":\"%d\"}",
+                id.toString(), label, x, y, color.getRGB()
+        );
+    }
+
+    public static Vertex fromJSON(String json) {
+        String[] fields = json.replaceAll("[{}\"]", "").split(",");
+        UUID id = UUID.fromString(fields[0].split(":")[1]);
+        String label = fields[1].split(":")[1];
+        Integer x = Integer.parseInt(fields[2].split(":")[1]);
+        Integer y = Integer.parseInt(fields[3].split(":")[1]);
+        Color color = new Color(Integer.parseInt(fields[4].split(":")[1]));
+
+        Vertex vertex = new Vertex(label, x, y, color);
+        vertex.id = id;
+        return vertex;
     }
 }

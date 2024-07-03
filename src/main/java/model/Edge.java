@@ -1,6 +1,7 @@
 package model;
 
 import java.awt.*;
+import java.util.UUID;
 
 public class Edge {
     private final Vertex fromV;
@@ -37,5 +38,27 @@ public class Edge {
 
     public Color getColor() {
         return color;
+    }
+
+    public String toJSON() {
+        return String.format(
+                "{\"from\":\"%s\",\"to\":\"%s\",\"weight\":%d,\"color\":\"%d\"}",
+                fromV.getId().toString(), toV.getId().toString(), weight, color.getRGB()
+        );
+    }
+
+    public static Edge fromJSON(String json, DirectedGraph graph) {
+        String[] fields = json.replaceAll("[{}\"]", "").split(",");
+        UUID fromId = UUID.fromString(fields[0].split(":")[1]);
+        UUID toId = UUID.fromString(fields[1].split(":")[1]);
+        Integer weight = Integer.parseInt(fields[2].split(":")[1]);
+        Color color = new Color(Integer.parseInt(fields[3].split(":")[1]));
+
+        Vertex fromV = graph.getVertexById(fromId);
+        Vertex toV = graph.getVertexById(toId);
+
+        Edge edge = new Edge(fromV, toV, color);
+        edge.setWeight(weight);
+        return edge;
     }
 }

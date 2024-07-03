@@ -5,7 +5,12 @@ import model.UndirectedGraph;
 import model.Vertex;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class ControlPanelsManager {
     private final App app;
@@ -98,16 +103,16 @@ public class ControlPanelsManager {
 
         JButton deleteAllButton = buttonsManager.createButton("/gui_icons/delete_all.png", "Clear the Field");
         JButton switchGraphTypeButton = buttonsManager.createButton("/gui_icons/switch_directed.png", "Switch Graph Type (Current: Directed)");
-        JButton importButton = buttonsManager.createButton("/gui_icons/import.png", "Import Graph");
-        JButton exportButton = buttonsManager.createButton("/gui_icons/export.png", "Export Graph");
+        JButton saveButton = buttonsManager.createButton("/gui_icons/save.png", "Save the Graph");
+        JButton loadButton = buttonsManager.createButton("/gui_icons/load.png", "Load the Graph");
 
         leftPanel.add(editButton);
         leftPanel.add(deleteButton);
         leftPanel.add(deleteAllButton);
         leftPanel.add(Box.createHorizontalStrut(GUISettings.BUTTON_SIZE));
         leftPanel.add(switchGraphTypeButton);
-        rightPanel.add(importButton);
-        rightPanel.add(exportButton);
+        rightPanel.add(saveButton);
+        rightPanel.add(loadButton);
 
         deleteAllButton.addActionListener(e -> {
             Vertex firstVertex = app.getGraphFieldManager().getFirstVertex();
@@ -118,17 +123,71 @@ public class ControlPanelsManager {
 
         switchGraphTypeButton.addActionListener(e -> {
             app.getGraph().clear();
-            app.setGraph(app.graphIsDirected() ? new UndirectedGraph() : new DirectedGraph());
-            app.setGraphDirection(!app.graphIsDirected());
+            app.setGraph(app.getGraph().isDirected() ? new UndirectedGraph() : new DirectedGraph());
             app.getGraphField().repaint();
+            changeSwitchGraphTypeButtonIcon(switchGraphTypeButton, app.getGraph().isDirected());
+        });
 
-            String iconPath = app.graphIsDirected() ? "/gui_icons/switch_directed.png" : "/gui_icons/switch_undirected.png";
-            String tooltipText = app.graphIsDirected() ? "Switch Graph Type (Current: Directed)" : "Switch Graph Type (Current: Undirected)";
-            ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
-            Image img = icon.getImage();
-            Image resizedImg = img.getScaledInstance(GUISettings.BUTTON_SIZE, GUISettings.BUTTON_SIZE, Image.SCALE_SMOOTH);
-            switchGraphTypeButton.setIcon(new ImageIcon(resizedImg));
-            switchGraphTypeButton.setToolTipText(tooltipText);
+        saveButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileFilter(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return f.isDirectory() || f.getName().toLowerCase().endsWith(".json");
+                }
+
+                @Override
+                public String getDescription() {
+                    return "JSON Files (*.json)";
+                }
+            });
+
+            int returnValue = fileChooser.showSaveDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                String path = selectedFile.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".json")) {
+                    selectedFile = new File(path + ".json");
+                }
+                try (FileWriter file = new FileWriter(selectedFile)) {
+                    file.write(app.getGraph().toJSON());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        loadButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileFilter(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return f.isDirectory() || f.getName().toLowerCase().endsWith(".json");
+                }
+
+                @Override
+                public String getDescription() {
+                    return "JSON Files (*.json)";
+                }
+            });
+
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                try (FileReader reader = new FileReader(selectedFile)) {
+                    StringBuilder jsonBuilder = new StringBuilder();
+                    int c;
+                    while ((c = reader.read()) != -1) {
+                        jsonBuilder.append((char) c);
+                    }
+                    String json = jsonBuilder.toString();
+                    DirectedGraph loadedGraph = DirectedGraph.fromJSON(json);
+                    app.setGraph(loadedGraph);
+                    app.getGraphField().repaint();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
         });
 
         app.add(controlPanelLeft, gbc);
@@ -169,6 +228,16 @@ public class ControlPanelsManager {
         runButton.addActionListener(e -> app.runDijkstra());
 
         app.add(controlPanelRight, gbc);
+    }
+
+    private void changeSwitchGraphTypeButtonIcon(JButton button, boolean isDirected) {
+        String iconPath = isDirected ? "/gui_icons/switch_directed.png" : "/gui_icons/switch_undirected.png";
+        String tooltipText = isDirected ? "Switch Graph Type (Current: Directed)" : "Switch Graph Type (Current: Undirected)";
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
+        Image img = icon.getImage();
+        Image resizedImg = img.getScaledInstance(GUISettings.BUTTON_SIZE, GUISettings.BUTTON_SIZE, Image.SCALE_SMOOTH);
+        button.setIcon(new ImageIcon(resizedImg));
+        button.setToolTipText(tooltipText);
     }
 
     private static class RoundedPanel extends JPanel {

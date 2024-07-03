@@ -9,15 +9,15 @@ public class CustomMessageDialog {
     public static void showMessageDialog(Component parent, String title, String message, Integer width, Integer height) {
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent), title, Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setLayout(new BorderLayout());
-        dialog.getContentPane().setBackground(GUISettings.APP_COLOR);
+        dialog.getContentPane().setBackground(GUISettings.DIALOG_BACKGROUND_COLOR);
 
         JPanel messagePanel = new JPanel();
-        messagePanel.setBackground(GUISettings.APP_COLOR);
+        messagePanel.setBackground(GUISettings.DIALOG_BACKGROUND_COLOR);
         messagePanel.add(new JLabel(message));
         dialog.add(messagePanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(GUISettings.APP_COLOR);
+        buttonPanel.setBackground(GUISettings.DIALOG_BACKGROUND_COLOR);
 
         JButton okButton = createStyledButton("OK");
         okButton.addActionListener(e -> dialog.dispose());
