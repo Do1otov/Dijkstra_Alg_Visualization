@@ -14,7 +14,7 @@ public class App extends JFrame {
     private final JPanel graphField;
     private DirectedGraph graph;
 
-    private boolean runDijkstra;
+    private boolean isRunDijkstra;
 
     private final ControlPanelsManager controlPanelsManager;
     private final GraphFieldManager graphFieldManager;
@@ -40,40 +40,10 @@ public class App extends JFrame {
         controlPanelsManager = new ControlPanelsManager(this);
         graphFieldManager = new GraphFieldManager(this);
 
-        isDirected = true;
-        graphField = graphFieldManager.getGraphField();
-        graph = new DirectedGraph();
-    }
-
-    public void runDijkstra() {
-        Vertex startVertex = graphFieldManager.getFirstVertex();
-        if (startVertex == null) {
-            CustomMessageDialog.showMessageDialog(this, "Error", "Start vertex is not selected.");
-            return;
-        }
-
-        this.runDijkstra = true;
-        DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
-        dijkstra.process(startVertex);
-        displayDijkstraSteps(dijkstra);
-        graphField.repaint();
-    }
-
-    public boolean isRunDijkstra() {
-        return runDijkstra;
-    }
-
-    public void resetRunDijkstra() {
-        this.runDijkstra = false;
-    }
-
-    private void displayDijkstraSteps(DijkstraAlgorithm dijkstra) {
-        JTextArea stepsField = controlPanelsManager.getStepsField();
-        stepsField.setText("");
-        int stepNumber = 1;
-        for (String step : dijkstra.getSteps()) {
-            stepsField.append("Step " + stepNumber++ + ": " + step + "\n");
-        }
+        this.isDirected = true;
+        this.graphField = graphFieldManager.getGraphField();
+        this.graph = new DirectedGraph();
+        this.isRunDijkstra = false;
     }
 
     public void setGraphDirection(boolean isDirected) {
@@ -84,12 +54,12 @@ public class App extends JFrame {
         this.graph = graph;
     }
 
-    public boolean graphIsDirected() {
-        return isDirected;
-    }
-
     public GridBagConstraints getGBC() {
         return gbc;
+    }
+
+    public boolean graphIsDirected() {
+        return isDirected;
     }
 
     public JPanel getGraphField() {
@@ -100,12 +70,43 @@ public class App extends JFrame {
         return graph;
     }
 
+    public boolean isRunDijkstra() {
+        return isRunDijkstra;
+    }
+
     public ControlPanelsManager getControlPanelsManager() {
         return controlPanelsManager;
     }
 
     public GraphFieldManager getGraphFieldManager() {
         return graphFieldManager;
+    }
+
+    public void runDijkstra() {
+        Vertex startVertex = graphFieldManager.getFirstVertex();
+        if (startVertex == null) {
+            CustomMessageDialog.showMessageDialog(this, "Error", "Start vertex is not selected.", 250, 100);
+            return;
+        }
+
+        this.isRunDijkstra = true;
+        DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
+        dijkstra.process(startVertex);
+        displayDijkstraSteps(dijkstra);
+        graphField.repaint();
+    }
+
+    public void resetRunDijkstra() {
+        this.isRunDijkstra = false;
+    }
+
+    private void displayDijkstraSteps(DijkstraAlgorithm dijkstra) {
+        JTextArea stepsField = controlPanelsManager.getStepsField();
+        stepsField.setText("");
+        int stepNumber = 1;
+        for (String step : dijkstra.getSteps()) {
+            stepsField.append("Step " + stepNumber++ + ": " + step + "\n");
+        }
     }
 
     public static void main(String[] args) {

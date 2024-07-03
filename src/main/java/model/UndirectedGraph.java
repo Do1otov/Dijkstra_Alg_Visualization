@@ -4,14 +4,6 @@ import java.util.List;
 
 public class UndirectedGraph extends DirectedGraph {
     @Override
-    public void addEdge(Edge edge) {
-        super.addEdge(edge);
-        Edge reversed = new Edge(edge.getToV(), edge.getFromV(), edge.getColor());
-        reversed.setWeight(edge.getWeight());
-        super.addEdge(reversed);
-    }
-
-    @Override
     public void setEdgeWeight(Edge edge, Integer weight) {
         super.setEdgeWeight(edge, weight);
         List<Edge> edgesFrom = super.getEdgesFrom(edge.getToV());
@@ -21,6 +13,14 @@ public class UndirectedGraph extends DirectedGraph {
                 break;
             }
         }
+    }
+
+    @Override
+    public void addEdge(Edge edge) {
+        super.addEdge(edge);
+        Edge reversed = new Edge(edge.getToV(), edge.getFromV(), edge.getColor());
+        reversed.setWeight(edge.getWeight());
+        super.addEdge(reversed);
     }
 
     @Override

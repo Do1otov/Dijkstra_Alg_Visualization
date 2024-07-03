@@ -13,6 +13,18 @@ public class DirectedGraph {
         this.nextLabel = 1;
     }
 
+    public void setEdgeWeight(Edge edge, Integer weight) {
+        edge.setWeight(weight);
+    }
+
+    public List<Vertex> getVertices() {
+        return new ArrayList<>(vertices.values());
+    }
+
+    public List<Edge> getEdgesFrom(Vertex vertex) {
+        return new ArrayList<>(adjacencyList.get(vertex));
+    }
+
     public void addVertex(Vertex vertex) {
         vertex.setLabel(String.valueOf(nextLabel++));
         vertices.put(vertex.getId(), vertex);
@@ -29,10 +41,6 @@ public class DirectedGraph {
         edgesFrom.add(edge);
     }
 
-    public void setEdgeWeight(Edge edge, Integer weight) {
-        edge.setWeight(weight);
-    }
-
     public void removeVertex(Vertex vertex) {
         Vertex removed = vertices.remove(vertex.getId());
         if (removed != null) {
@@ -40,7 +48,7 @@ public class DirectedGraph {
             for (List<Edge> edges : adjacencyList.values()) {
                 edges.removeIf(e -> e.getToV().equals(removed));
             }
-            renumberLabels();
+            reassignLabels();
         }
     }
 
@@ -56,22 +64,8 @@ public class DirectedGraph {
         adjacencyList.clear();
         nextLabel = 1;
     }
-
-    public Vertex getVertex(UUID id) {
-        return vertices.get(id);
-    }
-
-    public List<Vertex> getVertices() {
-        return new ArrayList<>(vertices.values());
-    }
-
-    public List<Edge> getEdgesFrom(Vertex vertex) {
-        return new ArrayList<>(adjacencyList.get(vertex));
-    }
-
-
-
-    private void renumberLabels() {
+    
+    private void reassignLabels() {
         List<Vertex> vertexList = new ArrayList<>(vertices.values());
         vertexList.sort(Comparator.comparing(Vertex::getLabel));
         int label = 1;

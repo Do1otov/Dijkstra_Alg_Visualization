@@ -23,6 +23,23 @@ public class DijkstraAlgorithm {
         }
     }
 
+    public Integer getDistanceTo(Vertex end) {
+        return distances.get(end);
+    }
+
+    public List<String> getPathTo(Vertex end) {
+        List<String> path = new ArrayList<>();
+        for (Vertex at = end; at != null; at = previousVertices.get(at)) {
+            path.add(at.getId().toString());
+        }
+        Collections.reverse(path);
+        return path;
+    }
+
+    public List<String> getSteps() {
+        return steps;
+    }
+
     public void process(Vertex start) {
         distances.put(start, 0);
         queue.add(start);
@@ -49,22 +66,5 @@ public class DijkstraAlgorithm {
                 }
             }
         }
-    }
-
-    public List<String> getSteps() {
-        return steps;
-    }
-
-    public List<String> getPathTo(Vertex end) {
-        List<String> path = new ArrayList<>();
-        for (Vertex at = end; at != null; at = previousVertices.get(at)) {
-            path.add(at.getId().toString());
-        }
-        Collections.reverse(path);
-        return path;
-    }
-
-    public Integer getDistanceTo(Vertex end) {
-        return distances.get(end);
     }
 }

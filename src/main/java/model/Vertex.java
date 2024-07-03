@@ -8,7 +8,6 @@ public class Vertex {
     private String label;
     private Integer x;
     private Integer y;
-    private Integer weight;
     private Color color;
 
     public Vertex(String label, Integer x, Integer y, Color color) {
@@ -16,7 +15,6 @@ public class Vertex {
         this.label = label;
         this.x = x;
         this.y = y;
-        this.weight = Integer.MAX_VALUE;
         this.color = color;
     }
 
@@ -30,10 +28,6 @@ public class Vertex {
 
     public void setY(Integer y) {
         this.y = y;
-    }
-
-    public void setWeight(Integer weight) {
-        this.weight = weight;
     }
 
     public void setColor(Color color) {
@@ -54,10 +48,6 @@ public class Vertex {
 
     public Integer getY() {
         return y;
-    }
-
-    public Integer getWeight() {
-        return weight;
     }
 
     public Color getColor() {

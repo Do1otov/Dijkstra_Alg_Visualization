@@ -3,9 +3,10 @@ package gui;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 public class CustomDialog {
-    public static String showInputDialog(Component parent, String title, String message) {
+    public static String showInputDialog(Component parent, String title, String message, Integer width, Integer height) {
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent), title, Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setLayout(new BorderLayout());
         dialog.getContentPane().setBackground(GUISettings.APP_COLOR);
@@ -37,7 +38,15 @@ public class CustomDialog {
         buttonPanel.add(cancelButton);
         dialog.add(buttonPanel, BorderLayout.SOUTH);
 
-        dialog.setSize(250, 125);
+        dialog.getRootPane().setDefaultButton(okButton);
+        dialog.getRootPane().registerKeyboardAction(e -> textField.setText(null),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        dialog.getRootPane().registerKeyboardAction(e -> okButton.doClick(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        dialog.setSize(width, height);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);

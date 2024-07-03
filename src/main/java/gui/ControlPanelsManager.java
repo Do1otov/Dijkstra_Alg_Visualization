@@ -10,21 +10,21 @@ import java.awt.*;
 public class ControlPanelsManager {
     private final App app;
     private final GridBagConstraints gbc;
+    private JTextArea stepsField;
 
     private final ButtonsManager buttonsManager;
 
     private JToggleButton editButton;
     private JToggleButton deleteButton;
-    private JTextArea stepsField;
 
     public ControlPanelsManager(App app) {
         this.app = app;
         this.gbc = app.getGBC();
+        initStepsField();
         buttonsManager = new ButtonsManager();
 
         initControlPanelLeft();
         initControlPanelRight();
-        initStepsField();
     }
 
     public JTextArea getStepsField() {
@@ -39,21 +39,32 @@ public class ControlPanelsManager {
         return deleteButton;
     }
 
-    private static class RoundedPanel extends JPanel {
-        public RoundedPanel() {
-            super();
-            setOpaque(false);
-        }
+    private void initStepsField() {
+        stepsField = new JTextArea();
+        stepsField.setBackground(GUISettings.STEPS_AREA_COLOR);
+        stepsField.setEditable(false);
+        stepsField.setLineWrap(true);
+        stepsField.setWrapStyleWord(true);
 
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getBackground());
-            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-            g2.dispose();
-        }
+        JScrollPane scrollPane = new JScrollPane(stepsField);
+        int width = 200, height = 500;
+        scrollPane.setPreferredSize(new Dimension(width, height));
+        scrollPane.setMinimumSize(new Dimension(width, height));
+        scrollPane.setMaximumSize(new Dimension(width, height));
+
+        JPanel stepsPanel = new RoundedPanel();
+        stepsPanel.setLayout(new BorderLayout());
+        stepsPanel.add(scrollPane, BorderLayout.CENTER);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 0.25;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+
+        app.add(stepsPanel, gbc);
     }
 
     private void initControlPanelLeft() {
@@ -160,30 +171,20 @@ public class ControlPanelsManager {
         app.add(controlPanelRight, gbc);
     }
 
-    private void initStepsField() {
-        stepsField = new JTextArea();
-        stepsField.setBackground(GUISettings.STEPS_AREA_COLOR);
-        stepsField.setEditable(false);
-        stepsField.setLineWrap(true);
-        stepsField.setWrapStyleWord(true);
+    private static class RoundedPanel extends JPanel {
+        public RoundedPanel() {
+            super();
+            setOpaque(false);
+        }
 
-        JScrollPane scrollPane = new JScrollPane(stepsField);
-        scrollPane.setPreferredSize(new Dimension(200, 500));
-        scrollPane.setMinimumSize(new Dimension(200, 500));
-        scrollPane.setMaximumSize(new Dimension(200, 500));
-
-        JPanel stepsPanel = new RoundedPanel();
-        stepsPanel.setLayout(new BorderLayout());
-        stepsPanel.add(scrollPane, BorderLayout.CENTER);
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        gbc.gridheight = 1;
-        gbc.weightx = 0.25;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-
-        app.add(stepsPanel, gbc);
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+            g2.dispose();
+        }
     }
 }

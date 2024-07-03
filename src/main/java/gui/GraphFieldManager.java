@@ -46,106 +46,29 @@ public class GraphFieldManager {
         return firstVertex;
     }
 
-    private class GraphPainter extends JPanel {
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            for (Vertex vertex : app.getGraph().getVertices()) {
-                int x = vertex.getX() - GUISettings.VERTEX_RADIUS;
-                int y = vertex.getY() - GUISettings.VERTEX_RADIUS;
-                g2.setColor(vertex.getColor());
-                g2.fillOval(x, y, GUISettings.VERTEX_RADIUS * 2, GUISettings.VERTEX_RADIUS * 2);
-                g2.setColor(GUISettings.TITLE_COLOR);
-                g2.drawString(vertex.getLabel(), vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() - (GUISettings.VERTEX_RADIUS + GUISettings.VERTEX_RADIUS / 2));
-
-                if (vertex.equals(app.getGraphFieldManager().getFirstVertex())) {
-                    g2.setColor(GUISettings.OUTLINE_SELECTED_VERTEX_COLOR);
-                    g2.drawOval(x, y, GUISettings.VERTEX_RADIUS * 2, GUISettings.VERTEX_RADIUS * 2);
-                }
-            }
-
-            for (Vertex vertex : app.getGraph().getVertices()) {
-                for (Edge edge : app.getGraph().getEdgesFrom(vertex)) {
-                    Point from = new Point(edge.getFromV().getX(), edge.getFromV().getY());
-                    Point to = new Point(edge.getToV().getX(), edge.getToV().getY());
-                    Point intersection = getIntersection(from, to);
-                    g2.setColor(edge.getColor());
-                    g2.drawLine(from.x, from.y, intersection.x, intersection.y);
-                    if (app.graphIsDirected()) {
-                        drawArrow(g2, from.x, from.y, intersection.x, intersection.y);
-                    }
-                    int midX = (from.x + to.x) / 2;
-                    int midY = (from.y + to.y) / 2;
-                    g2.setColor(GUISettings.TITLE_COLOR);
-                    g2.drawString(edge.getWeight().toString(), midX, midY);
-                }
-            }
-
-            if (app.isRunDijkstra()) {
-                Vertex startVertex = app.getGraphFieldManager().getFirstVertex();
-                if (startVertex != null) {
-                    DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(app.getGraph());
-                    dijkstra.process(startVertex);
-
-                    for (Vertex vertex : app.getGraph().getVertices()) {
-                        Integer distance = dijkstra.getDistanceTo(vertex);
-                        if (distance != null && distance < Integer.MAX_VALUE) {
-                            g2.setColor(Color.RED);
-                            g2.drawString(String.valueOf(distance), vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() + GUISettings.VERTEX_RADIUS + 10);
-                        }
-                    }
-                }
-                app.resetRunDijkstra();
-            }
-
-            g2.dispose();
-        }
-
-        private Point getIntersection(Point from, Point to) {
-            int radius = GUISettings.VERTEX_RADIUS;
-            double dx = to.x - from.x;
-            double dy = to.y - from.y;
-            double dist = Math.sqrt(dx * dx + dy * dy);
-            double newX = to.x - dx * radius / dist;
-            double newY = to.y - dy * radius / dist;
-            return new Point((int) newX, (int) newY);
-        }
-
-        private void drawArrow(Graphics2D g2, int x1, int y1, int x2, int y2) {
-            int arrowSize = GUISettings.ARROW_SIZE;
-            double angle = Math.atan2(y2 - y1, x2 - x1);
-            int x = (int) (x2 - arrowSize * Math.cos(angle - Math.PI / 6));
-            int y = (int) (y2 - arrowSize * Math.sin(angle - Math.PI / 6));
-            int x3 = (int) (x2 - arrowSize * Math.cos(angle + Math.PI / 6));
-            int y3 = (int) (y2 - arrowSize * Math.sin(angle + Math.PI / 6));
-            int[] xPoints = {x2, x, x3};
-            int[] yPoints = {y2, y, y3};
-            g2.fillPolygon(xPoints, yPoints, 3);
-        }
-    }
-
     private void addVertex(Point point) {
         Vertex vertex = new Vertex("", point.x, point.y, GUISettings.VERTEX_COLOR);
         app.getGraph().addVertex(vertex);
+        app.resetRunDijkstra();
         graphField.repaint();
     }
 
     private void addEdge(Vertex from, Vertex to) {
         Edge edge = new Edge(from, to, GUISettings.EDGE_COLOR);
         app.getGraph().addEdge(edge);
+        app.resetRunDijkstra();
         graphField.repaint();
     }
 
     private void removeVertex(Vertex vertex) {
         app.getGraph().removeVertex(vertex);
+        app.resetRunDijkstra();
         graphField.repaint();
     }
 
     private void removeEdge(Edge edge) {
         app.getGraph().removeEdge(edge);
+        app.resetRunDijkstra();
         graphField.repaint();
     }
 
@@ -177,6 +100,93 @@ public class GraphFieldManager {
         return Math.abs(distance - lineLength) < 3;
     }
 
+    private class GraphPainter extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            for (Vertex vertex : app.getGraph().getVertices()) {
+                for (Edge edge : app.getGraph().getEdgesFrom(vertex)) {
+                    Point from = new Point(edge.getFromV().getX(), edge.getFromV().getY());
+                    Point to = new Point(edge.getToV().getX(), edge.getToV().getY());
+                    Point intersection = getIntersection(from, to);
+                    g2.setColor(edge.getColor());
+                    g2.drawLine(from.x, from.y, intersection.x, intersection.y);
+                    if (app.graphIsDirected()) {
+                        drawArrow(g2, from.x, from.y, intersection.x, intersection.y);
+                    }
+                }
+            }
+
+            for (Vertex vertex : app.getGraph().getVertices()) {
+                for (Edge edge : app.getGraph().getEdgesFrom(vertex)) {
+                    Point from = new Point(edge.getFromV().getX(), edge.getFromV().getY());
+                    Point to = new Point(edge.getToV().getX(), edge.getToV().getY());
+                    int midX = (from.x + to.x) / 2;
+                    int midY = (from.y + to.y) / 2;
+                    g2.setColor(GUISettings.TITLE_COLOR);
+                    g2.drawString(edge.getWeight().toString(), midX, midY);
+                }
+            }
+
+            for (Vertex vertex : app.getGraph().getVertices()) {
+                int x = vertex.getX() - GUISettings.VERTEX_RADIUS;
+                int y = vertex.getY() - GUISettings.VERTEX_RADIUS;
+                g2.setColor(vertex.getColor());
+                g2.fillOval(x, y, GUISettings.VERTEX_RADIUS * 2, GUISettings.VERTEX_RADIUS * 2);
+                g2.setColor(GUISettings.TITLE_COLOR);
+                g2.drawString(vertex.getLabel(), vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() - (GUISettings.VERTEX_RADIUS + GUISettings.VERTEX_RADIUS / 2));
+
+                if (vertex.equals(app.getGraphFieldManager().getFirstVertex())) {
+                    g2.setColor(GUISettings.OUTLINE_SELECTED_VERTEX_COLOR);
+                    g2.drawOval(x, y, GUISettings.VERTEX_RADIUS * 2, GUISettings.VERTEX_RADIUS * 2);
+                }
+            }
+
+            if (app.isRunDijkstra()) {
+                Vertex startVertex = app.getGraphFieldManager().getFirstVertex();
+                if (startVertex != null) {
+                    DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(app.getGraph());
+                    dijkstra.process(startVertex);
+
+                    for (Vertex vertex : app.getGraph().getVertices()) {
+                        Integer distance = dijkstra.getDistanceTo(vertex);
+                        if (distance != null && distance < Integer.MAX_VALUE) {
+                            g2.setColor(Color.RED);
+                            g2.drawString(String.valueOf(distance), vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() + GUISettings.VERTEX_RADIUS + 10);
+                        }
+                    }
+                }
+                app.resetRunDijkstra();
+            }
+            g2.dispose();
+        }
+
+        private Point getIntersection(Point from, Point to) {
+            int radius = GUISettings.VERTEX_RADIUS;
+            double dx = to.x - from.x;
+            double dy = to.y - from.y;
+            double dist = Math.sqrt(dx * dx + dy * dy);
+            double newX = to.x - dx * radius / dist;
+            double newY = to.y - dy * radius / dist;
+            return new Point((int) newX, (int) newY);
+        }
+
+        private void drawArrow(Graphics2D g2, int x1, int y1, int x2, int y2) {
+            int arrowSize = GUISettings.ARROW_SIZE;
+            double angle = Math.atan2(y2 - y1, x2 - x1);
+            int x = (int) (x2 - arrowSize * Math.cos(angle - Math.PI / 6));
+            int y = (int) (y2 - arrowSize * Math.sin(angle - Math.PI / 6));
+            int x3 = (int) (x2 - arrowSize * Math.cos(angle + Math.PI / 6));
+            int y3 = (int) (y2 - arrowSize * Math.sin(angle + Math.PI / 6));
+            int[] xPoints = {x2, x, x3};
+            int[] yPoints = {y2, y, y3};
+            g2.fillPolygon(xPoints, yPoints, 3);
+        }
+    }
+
     private class MouseListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -202,18 +212,19 @@ public class GraphFieldManager {
                 } else if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 1) {
                     Edge edge = getEdgeAt(e.getPoint());
                     if (edge != null) {
-                        String weightStr = CustomDialog.showInputDialog(graphField, "Edge Weight", "Enter Non-Negative Edge Weight:");
+                        String weightStr = CustomDialog.showInputDialog(graphField, "Edge Weight", "Enter Non-Negative Edge Weight:", 250, 125);
                         if (weightStr != null) {
                             try {
                                 int weight = Integer.parseInt(weightStr);
                                 if (weight < 0) {
-                                    CustomMessageDialog.showMessageDialog(graphField, "Error", "Edge weight must be non-negative.");
+                                    CustomMessageDialog.showMessageDialog(graphField, "Error", "Edge weight must be non-negative.", 250, 100);
                                 } else {
                                     app.getGraph().setEdgeWeight(edge, weight);
+                                    app.resetRunDijkstra();
                                     graphField.repaint();
                                 }
                             } catch (NumberFormatException ex) {
-                                CustomMessageDialog.showMessageDialog(graphField, "Error", "Invalid input. Please enter a number.");
+                                CustomMessageDialog.showMessageDialog(graphField, "Error", "Invalid input. Please enter a number.", 250, 100);
                             }
                         }
                     }
@@ -236,7 +247,7 @@ public class GraphFieldManager {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            if (app.getControlPanelsManager().getEditButton().isSelected() && SwingUtilities.isLeftMouseButton(e)) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
                 selectedVertex = getVertexAt(e.getPoint());
                 initClick = e.getPoint();
             }
@@ -253,6 +264,14 @@ public class GraphFieldManager {
         @Override
         public void mouseDragged(MouseEvent e) {
             if (app.getControlPanelsManager().getEditButton().isSelected() && selectedVertex != null) {
+                int deltaX = e.getX() - initClick.x;
+                int deltaY = e.getY() - initClick.y;
+                selectedVertex.setX(selectedVertex.getX() + deltaX);
+                selectedVertex.setY(selectedVertex.getY() + deltaY);
+                initClick = e.getPoint();
+                app.resetRunDijkstra();
+                graphField.repaint();
+            } else if (app.getControlPanelsManager().getDeleteButton().isSelected() && selectedVertex != null) {
                 int deltaX = e.getX() - initClick.x;
                 int deltaY = e.getY() - initClick.y;
                 selectedVertex.setX(selectedVertex.getX() + deltaX);
