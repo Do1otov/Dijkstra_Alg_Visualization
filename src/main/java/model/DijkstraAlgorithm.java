@@ -16,13 +16,11 @@ public class DijkstraAlgorithm {
         this.previousVertices = new HashMap<>();
         this.visited = new HashSet<>();
         this.steps = new ArrayList<>();
+        this.queue = new PriorityQueue<>(Comparator.comparingInt(distances::get));
 
-        // Initialize distances with MAX_VALUE
         for (Vertex vertex : graph.getVertices()) {
             distances.put(vertex, Integer.MAX_VALUE);
         }
-
-        this.queue = new PriorityQueue<>(Comparator.comparingInt(distances::get));
     }
 
     public void process(Vertex start) {
@@ -31,6 +29,9 @@ public class DijkstraAlgorithm {
 
         while (!queue.isEmpty()) {
             Vertex curr = queue.poll();
+            if (visited.contains(curr)) {
+                continue;
+            }
             visited.add(curr);
             steps.add("Processing vertex " + curr.getLabel());
 
