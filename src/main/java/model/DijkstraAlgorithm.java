@@ -5,44 +5,45 @@ import java.util.*;
 public class DijkstraAlgorithm {
     private final DirectedGraph graph;
     private final Map<Vertex, Integer> distances;
-    private final Map<Vertex, Vertex> previousVertices;
     private final Set<Vertex> visited;
     private final PriorityQueue<Vertex> queue;
-    private final List<String> steps;
+
+    private final List<String> logs;
+    private final List<DijkstraState> states;
 
     public DijkstraAlgorithm(DirectedGraph graph) {
         this.graph = graph;
         this.distances = new HashMap<>();
-        this.previousVertices = new HashMap<>();
         this.visited = new HashSet<>();
-        this.steps = new ArrayList<>();
         this.queue = new PriorityQueue<>(Comparator.comparingInt(distances::get));
+
+        this.logs = new ArrayList<>();
+        this.states = new ArrayList<>();
 
         for (Vertex vertex : graph.getVertices()) {
             distances.put(vertex, Integer.MAX_VALUE);
         }
     }
 
-    public Integer getDistanceTo(Vertex end) {
-        return distances.get(end);
+    private void saveState(Vertex vertex, Edge edge, Vertex neighbor, String inequality) {
+        states.add(new DijkstraState(new HashMap<>(distances), new HashSet<>(visited), new ArrayList<>(logs), vertex, edge, neighbor, inequality));
     }
 
-    public List<String> getPathTo(Vertex end) {
-        List<String> path = new ArrayList<>();
-        for (Vertex at = end; at != null; at = previousVertices.get(at)) {
-            path.add(at.getId().toString());
-        }
-        Collections.reverse(path);
-        return path;
+    public Integer getNumberStates() {
+        return states.size();
     }
 
-    public List<String> getSteps() {
-        return steps;
+    public DijkstraState getState(Integer index) {
+        return states.get(index);
     }
 
     public void process(Vertex start) {
+        logs.add("Step 0:\n  The start of Dijkstra`s algorithm.\n");
+        saveState(null, null, null, null);
+
         distances.put(start, 0);
         queue.add(start);
+        int count = 1;
 
         while (!queue.isEmpty()) {
             Vertex curr = queue.poll();
@@ -50,21 +51,36 @@ public class DijkstraAlgorithm {
                 continue;
             }
             visited.add(curr);
-            steps.add("Processing vertex " + curr.getLabel());
+
+            logs.add(String.format("\nStep %d:\n  Processing vertex (%s).\n", count, curr.getLabel()));
+            saveState(curr, null, null, null);
 
             for (Edge edge : graph.getEdgesFrom(curr)) {
                 Vertex neighbor = edge.getToV();
                 if (!visited.contains(neighbor)) {
-                    steps.add("Checking edge (" + curr.getLabel() + " -> " + neighbor.getLabel() + ")");
+                    logs.add(String.format("  Processing edge (%s -> %s).\n", curr.getLabel(), neighbor.getLabel()));
+                    saveState(curr, edge, neighbor, null);
+
                     int newDist = distances.get(curr) + edge.getWeight();
+                    String stringSign = newDist < distances.get(neighbor) ? " < " : " > ";
+                    String stringDist = distances.get(neighbor) < Integer.MAX_VALUE ? distances.get(neighbor).toString() : "∞";
+                    String inequality = distances.get(curr) + " + " + edge.getWeight() + stringSign + stringDist;
+
+                    logs.add(String.format("  Distance inequality: %s.\n", inequality));
+                    saveState(curr, edge, neighbor, inequality);
+
                     if (newDist < distances.get(neighbor)) {
-                        steps.add("Relaxing edge (" + curr.getLabel() + " -> " + neighbor.getLabel() + ") and updating distance to " + newDist);
                         distances.put(neighbor, newDist);
-                        previousVertices.put(neighbor, curr);
                         queue.add(neighbor);
+
+                        logs.add(String.format("  Relaxation of edge (%s -> %s) and updating the distance to vertex (%s): New distance = %d.\n", curr.getLabel(), neighbor.getLabel(), neighbor.getLabel(), newDist));
+                        saveState(curr, edge, neighbor, null);
                     }
                 }
             }
+            count++;
         }
+        logs.add(String.format("\nStep %d: The end of Dijkstra's algorithm.\n", count));
+        saveState(null, null, null, null);
     }
 }

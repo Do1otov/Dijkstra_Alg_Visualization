@@ -1,8 +1,9 @@
 package gui;
 
-import model.DijkstraAlgorithm;
+import model.DijkstraState;
 import model.Edge;
 import model.Vertex;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -108,6 +109,32 @@ public class GraphFieldManager {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+            if (app.isRunDijkstra()) {
+                DijkstraState state = app.getDijkstra().getState(app.getStateIndex());
+                for (Vertex vertex : app.getGraph().getVertices()) {
+                    vertex.setColor(GUISettings.VERTEX_COLOR);
+
+                    for (Edge edge : app.getGraph().getEdgesFrom(vertex)) {
+                        edge.setColor(GUISettings.EDGE_COLOR);
+                    }
+                }
+
+                for (Vertex vertex : state.getDistances().keySet()) {
+                    if (state.getVisited().contains(vertex)) {
+                        vertex.setColor(GUISettings.VISITED_VERTEX_COLOR);
+                    }
+                }
+                if (state.getCurrentVertex() != null) {
+                    state.getCurrentVertex().setColor(GUISettings.CURRENT_VERTEX_COLOR);
+                }
+                if (state.getNeighborVertex() != null) {
+                    state.getNeighborVertex().setColor(GUISettings.NEIGHBOR_VERTEX_COLOR);
+                }
+                if (state.getCurrentEdge() != null) {
+                    state.getCurrentEdge().setColor(GUISettings.PROCESSED_EDGE_COLOR);
+                }
+            }
+
             for (Vertex vertex : app.getGraph().getVertices()) {
                 for (Edge edge : app.getGraph().getEdgesFrom(vertex)) {
                     Point from = new Point(edge.getFromV().getX(), edge.getFromV().getY());
@@ -118,13 +145,7 @@ public class GraphFieldManager {
                     if (app.getGraph().isDirected()) {
                         drawArrow(g2, from.x, from.y, intersection.x, intersection.y);
                     }
-                }
-            }
 
-            for (Vertex vertex : app.getGraph().getVertices()) {
-                for (Edge edge : app.getGraph().getEdgesFrom(vertex)) {
-                    Point from = new Point(edge.getFromV().getX(), edge.getFromV().getY());
-                    Point to = new Point(edge.getToV().getX(), edge.getToV().getY());
                     int midX = (from.x + to.x) / 2;
                     int midY = (from.y + to.y) / 2;
                     g2.setColor(GUISettings.TITLE_COLOR);
@@ -140,25 +161,23 @@ public class GraphFieldManager {
                 g2.setColor(GUISettings.TITLE_COLOR);
                 g2.drawString(vertex.getLabel(), vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() - (GUISettings.VERTEX_RADIUS + GUISettings.VERTEX_RADIUS / 2));
 
-                if (vertex.equals(app.getGraphFieldManager().getFirstVertex())) {
+                if (vertex.equals(firstVertex)) {
                     g2.setColor(GUISettings.OUTLINE_SELECTED_VERTEX_COLOR);
                     g2.drawOval(x, y, GUISettings.VERTEX_RADIUS * 2, GUISettings.VERTEX_RADIUS * 2);
                 }
             }
 
-            if (app.isRunDijkstra()) {
-                Vertex startVertex = app.getGraphFieldManager().getFirstVertex();
-                if (startVertex != null) {
-                    DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(app.getGraph());
-                    dijkstra.process(startVertex);
 
-                    for (Vertex vertex : app.getGraph().getVertices()) {
-                        Integer distance = dijkstra.getDistanceTo(vertex);
-                        if (distance != null && distance < Integer.MAX_VALUE) {
-                            g2.setColor(Color.RED);
-                            g2.drawString(String.valueOf(distance), vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() + GUISettings.VERTEX_RADIUS + 10);
-                        }
-                    }
+            if (app.isRunDijkstra()) {
+                DijkstraState state = app.getDijkstra().getState(app.getStateIndex());
+                for (Vertex vertex : state.getDistances().keySet()) {
+                    g2.setColor(GUISettings.DISTANCE_COLOR);
+                    g2.drawString(state.getDistances().get(vertex) < Integer.MAX_VALUE ? String.valueOf(state.getDistances().get(vertex)) : "∞", vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() + 2 * GUISettings.VERTEX_RADIUS);
+                }
+
+                if (state.getInequality() != null) {
+                    g2.setColor(GUISettings.INEQUALITY_COLOR);
+                    g2.drawString(state.getInequality(), state.getNeighborVertex().getX() - GUISettings.VERTEX_RADIUS / 2 - 16, state.getNeighborVertex().getY() + 3 * GUISettings.VERTEX_RADIUS);
                 }
             }
             g2.dispose();

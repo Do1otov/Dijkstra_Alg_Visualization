@@ -15,16 +15,12 @@ public class DirectedGraph {
         this.nextLabel = 1;
     }
 
-    public Vertex getVertexById(UUID id) {
-        return vertices.get(id);
-    }
-
     public void setEdgeWeight(Edge edge, Integer weight) {
         edge.setWeight(weight);
     }
 
-    public boolean isDirected() {
-        return isDirected;
+    public Vertex getVertexById(UUID id) {
+        return vertices.get(id);
     }
 
     public List<Vertex> getVertices() {
@@ -33,6 +29,10 @@ public class DirectedGraph {
 
     public List<Edge> getEdgesFrom(Vertex vertex) {
         return new ArrayList<>(adjacencyList.get(vertex));
+    }
+
+    public boolean isDirected() {
+        return isDirected;
     }
 
     public void addVertex(Vertex vertex) {

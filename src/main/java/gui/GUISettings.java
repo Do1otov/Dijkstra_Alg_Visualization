@@ -30,4 +30,14 @@ public class GUISettings {
     public static final Color OUTLINE_SELECTED_VERTEX_COLOR = Color.RED;
 
     public static final Integer ARROW_SIZE = 10;
+
+
+    public static final Color VISITED_VERTEX_COLOR = Color.RED;
+    public static final Color CURRENT_VERTEX_COLOR = new Color(145, 0, 0);
+    public static final Color NEIGHBOR_VERTEX_COLOR = new Color(11, 61, 135);
+
+    public static final Color PROCESSED_EDGE_COLOR = new Color(0, 102, 255);
+
+    public static final Color DISTANCE_COLOR = Color.RED;
+    public static final Color INEQUALITY_COLOR = new Color(11, 61, 135);
 }

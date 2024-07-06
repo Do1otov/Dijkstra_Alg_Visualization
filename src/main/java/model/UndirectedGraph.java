@@ -43,4 +43,20 @@ public class UndirectedGraph extends DirectedGraph {
             super.removeEdge(reversed);
         }
     }
+
+    public static UndirectedGraph fromJSON(String json) {
+        DirectedGraph tempGraph = DirectedGraph.fromJSON(json);
+        UndirectedGraph undirectedGraph = new UndirectedGraph();
+
+        for (Vertex vertex : tempGraph.getVertices()) {
+            undirectedGraph.addVertex(vertex);
+        }
+        for (Vertex vertex : tempGraph.getVertices()) {
+            for (Edge edge : tempGraph.getEdgesFrom(vertex)) {
+                undirectedGraph.addEdge(edge);
+            }
+        }
+
+        return undirectedGraph;
+    }
 }

@@ -118,11 +118,13 @@ public class ControlPanelsManager {
             Vertex firstVertex = app.getGraphFieldManager().getFirstVertex();
             firstVertex = null;
             app.getGraph().clear();
+            app.resetRunDijkstra();
             app.getGraphField().repaint();
         });
 
         switchGraphTypeButton.addActionListener(e -> {
             app.getGraph().clear();
+            app.resetRunDijkstra();
             app.setGraph(app.getGraph().isDirected() ? new UndirectedGraph() : new DirectedGraph());
             app.getGraphField().repaint();
             changeSwitchGraphTypeButtonIcon(switchGraphTypeButton, app.getGraph().isDirected());
@@ -182,7 +184,13 @@ public class ControlPanelsManager {
                     }
                     String json = jsonBuilder.toString();
                     DirectedGraph loadedGraph = DirectedGraph.fromJSON(json);
-                    app.setGraph(loadedGraph);
+                    if (loadedGraph.isDirected()) {
+                        app.setGraph(loadedGraph);
+                    } else {
+                        UndirectedGraph undirectedGraph = UndirectedGraph.fromJSON(json);
+                        app.setGraph(undirectedGraph);
+                    }
+                    changeSwitchGraphTypeButtonIcon(switchGraphTypeButton, loadedGraph.isDirected());
                     app.getGraphField().repaint();
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -217,15 +225,17 @@ public class ControlPanelsManager {
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JButton runButton = buttonsManager.createButton("/gui_icons/run.png", "Run");
+        JButton runButton = buttonsManager.createButton("/gui_icons/run.png", "Run Completely");
         JButton stepBackButton = buttonsManager.createButton("/gui_icons/step_back.png", "Step Back");
-        JButton stepForwardButton = buttonsManager.createButton("/gui_icons/step_forward.png", "Step Forward");
+        JButton stepForwardButton = buttonsManager.createButton("/gui_icons/step_forward.png", "Step Forward / Run by Steps");
 
         leftPanel.add(runButton);
         rightPanel.add(stepBackButton);
         rightPanel.add(stepForwardButton);
 
-        runButton.addActionListener(e -> app.runDijkstra());
+        runButton.addActionListener(e -> app.fullRunDijkstra());
+        stepBackButton.addActionListener(e -> app.stepBack());
+        stepForwardButton.addActionListener(e -> app.stepForward());
 
         app.add(controlPanelRight, gbc);
     }

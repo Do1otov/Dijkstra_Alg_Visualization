@@ -1,8 +1,6 @@
 package gui;
 
-import model.DijkstraAlgorithm;
-import model.DirectedGraph;
-import model.Vertex;
+import model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +12,8 @@ public class App extends JFrame {
     private DirectedGraph graph;
 
     private boolean isRunDijkstra;
+    private DijkstraAlgorithm dijkstra;
+    private Integer stateIndex;
 
     private final ControlPanelsManager controlPanelsManager;
     private final GraphFieldManager graphFieldManager;
@@ -42,6 +42,7 @@ public class App extends JFrame {
         this.graphField = graphFieldManager.getGraphField();
         this.graph = new DirectedGraph();
         this.isRunDijkstra = false;
+        stateIndex = 0;
     }
 
     public void setGraph(DirectedGraph graph) {
@@ -64,6 +65,14 @@ public class App extends JFrame {
         return isRunDijkstra;
     }
 
+    public DijkstraAlgorithm getDijkstra() {
+        return dijkstra;
+    }
+
+    public Integer getStateIndex() {
+        return stateIndex;
+    }
+
     public ControlPanelsManager getControlPanelsManager() {
         return controlPanelsManager;
     }
@@ -79,23 +88,64 @@ public class App extends JFrame {
             return;
         }
 
+        resetRunDijkstra();
         this.isRunDijkstra = true;
-        DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
+        dijkstra = new DijkstraAlgorithm(graph);
         dijkstra.process(startVertex);
-        displayDijkstraSteps(dijkstra);
-        graphField.repaint();
     }
 
     public void resetRunDijkstra() {
         this.isRunDijkstra = false;
+        this.stateIndex = 0;
+        for (Vertex vertex : graph.getVertices()) {
+            vertex.setColor(GUISettings.VERTEX_COLOR);
+
+            for (Edge edge : graph.getEdgesFrom(vertex)) {
+                edge.setColor(GUISettings.EDGE_COLOR);
+            }
+        }
+        controlPanelsManager.getStepsField().setText("");
     }
 
-    private void displayDijkstraSteps(DijkstraAlgorithm dijkstra) {
+    public void fullRunDijkstra() {
+        runDijkstra();
+        if (isRunDijkstra) {
+            stateIndex = dijkstra.getNumberStates() - 1;
+            displaySteps();
+            graphField.repaint();
+        }
+    }
+
+    public void stepBack() {
+        if (isRunDijkstra && stateIndex > 0) {
+            stateIndex--;
+            displaySteps();
+            graphField.repaint();
+        }
+    }
+
+    public void stepForward() {
+        if (stateIndex.equals(0)) {
+            runDijkstra();
+            if (isRunDijkstra) {
+                stateIndex++;
+                displaySteps();
+                graphField.repaint();
+            }
+        } else if (isRunDijkstra && stateIndex < dijkstra.getNumberStates() - 1) {
+            stateIndex++;
+            displaySteps();
+            graphField.repaint();
+        }
+    }
+
+    private void displaySteps() {
         JTextArea stepsField = controlPanelsManager.getStepsField();
         stepsField.setText("");
-        int stepNumber = 1;
-        for (String step : dijkstra.getSteps()) {
-            stepsField.append("Step " + stepNumber++ + ": " + step + "\n");
+
+        DijkstraState state = dijkstra.getState(stateIndex);
+        for (String log : state.getLogs()) {
+            stepsField.append(log);
         }
     }
 
