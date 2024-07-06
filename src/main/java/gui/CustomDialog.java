@@ -1,5 +1,7 @@
 package gui;
 
+import static gui.Settings.*;
+
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
@@ -9,21 +11,21 @@ public class CustomDialog {
     public static String showInputDialog(Component parent, String title, String message, Integer width, Integer height) {
         JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent), title, Dialog.ModalityType.APPLICATION_MODAL);
         dialog.setLayout(new BorderLayout());
-        dialog.getContentPane().setBackground(GUISettings.DIALOG_BACKGROUND_COLOR);
+        dialog.getContentPane().setBackground(DIALOG_BACKGROUND_COLOR);
 
         JPanel messagePanel = new JPanel();
-        messagePanel.setBackground(GUISettings.DIALOG_BACKGROUND_COLOR);
+        messagePanel.setBackground(Settings.DIALOG_BACKGROUND_COLOR);
         messagePanel.add(new JLabel(message));
         dialog.add(messagePanel, BorderLayout.NORTH);
 
         JTextField textField = new JTextField(10);
         JPanel inputPanel = new JPanel();
-        inputPanel.setBackground(GUISettings.DIALOG_BACKGROUND_COLOR);
+        inputPanel.setBackground(DIALOG_BACKGROUND_COLOR);
         inputPanel.add(textField);
         dialog.add(inputPanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(GUISettings.DIALOG_BACKGROUND_COLOR);
+        buttonPanel.setBackground(DIALOG_BACKGROUND_COLOR);
 
         JButton okButton = createStyledButton("OK");
         okButton.addActionListener(e -> dialog.dispose());
@@ -57,11 +59,11 @@ public class CustomDialog {
     private static JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(80, 25));
-        button.setBackground(GUISettings.CONTROL_PANEL_COLOR);
+        button.setBackground(CONTROL_PANEL_COLOR);
         button.setUI(new BasicButtonUI() {
             @Override
             protected void paintButtonPressed(Graphics g, AbstractButton b) {
-                g.setColor(GUISettings.PRESSED_BUTTON_COLOR);
+                g.setColor(PRESSED_BUTTON_COLOR);
                 g.fillRect(0, 0, b.getWidth(), b.getHeight());
             }
         });
@@ -69,24 +71,24 @@ public class CustomDialog {
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBorder(BorderFactory.createLineBorder(GUISettings.MOUSE_ENTERED_BORDER_COLOR));
-                button.setBackground(GUISettings.MOUSE_ENTERED_BACKGROUND_COLOR);
+                button.setBorder(BorderFactory.createLineBorder(MOUSE_ENTERED_BORDER_COLOR));
+                button.setBackground(MOUSE_ENTERED_BACKGROUND_COLOR);
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 button.setBorder(BorderFactory.createEmptyBorder());
-                button.setBackground(GUISettings.CONTROL_PANEL_COLOR);
+                button.setBackground(CONTROL_PANEL_COLOR);
             }
 
             @Override
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                button.setBackground(GUISettings.PRESSED_BUTTON_COLOR);
+                button.setBackground(PRESSED_BUTTON_COLOR);
             }
 
             @Override
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                button.setBackground(GUISettings.CONTROL_PANEL_COLOR);
+                button.setBackground(CONTROL_PANEL_COLOR);
             }
         });
         return button;

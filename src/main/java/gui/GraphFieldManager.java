@@ -1,9 +1,7 @@
 package gui;
 
-import model.DijkstraState;
-import model.Edge;
-import model.Vertex;
-
+import model.*;
+import static gui.Settings.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,8 +20,9 @@ public class GraphFieldManager {
     public GraphFieldManager(App app) {
         this.app = app;
         this.graphField = new GraphPainter();
+        reset();
 
-        graphField.setBackground(GUISettings.GRAPH_FIELD_COLOR);
+        graphField.setBackground(GRAPH_FIELD_COLOR);
         graphField.addMouseListener(new MouseListener());
         graphField.addMouseMotionListener(new MouseMotionListener());
 
@@ -43,43 +42,53 @@ public class GraphFieldManager {
         return graphField;
     }
 
+    public void setFirstVertex(Vertex vertex) {
+        this.firstVertex = vertex;
+    }
+
     public Vertex getFirstVertex() {
         return firstVertex;
     }
 
+    public void reset() {
+        this.selectedVertex = null;
+        this.firstVertex = null;
+        this.initClick = null;
+    }
+
     private void addVertex(Point point) {
-        Vertex vertex = new Vertex("", point.x, point.y, GUISettings.VERTEX_COLOR);
+        Vertex vertex = new Vertex("", point.x, point.y, VERTEX_COLOR);
         app.getGraph().addVertex(vertex);
-        app.resetRunDijkstra();
+        app.getAlgorithmManager().reset();
         graphField.repaint();
     }
 
     private void addEdge(Vertex from, Vertex to) {
-        Edge edge = new Edge(from, to, GUISettings.EDGE_COLOR);
+        Edge edge = new Edge(from, to, EDGE_COLOR);
         app.getGraph().addEdge(edge);
-        app.resetRunDijkstra();
+        app.getAlgorithmManager().reset();
         graphField.repaint();
     }
 
     private void removeVertex(Vertex vertex) {
         app.getGraph().removeVertex(vertex);
-        app.resetRunDijkstra();
+        app.getAlgorithmManager().reset();
         graphField.repaint();
     }
 
     private void removeEdge(Edge edge) {
         app.getGraph().removeEdge(edge);
-        app.resetRunDijkstra();
+        app.getAlgorithmManager().reset();
         graphField.repaint();
     }
 
     private Vertex getVertexAt(Point point) {
         for (Vertex vertex : app.getGraph().getVertices()) {
-            if (Math.pow(point.x - vertex.getX(), 2) + Math.pow(point.y - vertex.getY(), 2) <= Math.pow(GUISettings.VERTEX_RADIUS, 2)) {
+            if (Math.pow(point.x - vertex.getX(), 2) + Math.pow(point.y - vertex.getY(), 2) <= Math.pow(VERTEX_RADIUS, 2)) {
                 return vertex;
             }
         }
-        app.resetRunDijkstra();
+        app.getAlgorithmManager().reset();
         return null;
     }
 
@@ -109,29 +118,28 @@ public class GraphFieldManager {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            if (app.isRunDijkstra()) {
-                DijkstraState state = app.getDijkstra().getState(app.getStateIndex());
+            if (app.getAlgorithmManager().isRun()) {
+                DijkstraState state = app.getAlgorithmManager().getState();
                 for (Vertex vertex : app.getGraph().getVertices()) {
-                    vertex.setColor(GUISettings.VERTEX_COLOR);
-
+                    vertex.setColor(VERTEX_COLOR);
                     for (Edge edge : app.getGraph().getEdgesFrom(vertex)) {
-                        edge.setColor(GUISettings.EDGE_COLOR);
+                        edge.setColor(EDGE_COLOR);
                     }
                 }
 
                 for (Vertex vertex : state.getDistances().keySet()) {
                     if (state.getVisited().contains(vertex)) {
-                        vertex.setColor(GUISettings.VISITED_VERTEX_COLOR);
+                        vertex.setColor(VISITED_VERTEX_COLOR);
                     }
                 }
                 if (state.getCurrentVertex() != null) {
-                    state.getCurrentVertex().setColor(GUISettings.CURRENT_VERTEX_COLOR);
+                    state.getCurrentVertex().setColor(CURRENT_VERTEX_COLOR);
                 }
                 if (state.getNeighborVertex() != null) {
-                    state.getNeighborVertex().setColor(GUISettings.NEIGHBOR_VERTEX_COLOR);
+                    state.getNeighborVertex().setColor(NEIGHBOR_VERTEX_COLOR);
                 }
                 if (state.getCurrentEdge() != null) {
-                    state.getCurrentEdge().setColor(GUISettings.PROCESSED_EDGE_COLOR);
+                    state.getCurrentEdge().setColor(PROCESSED_EDGE_COLOR);
                 }
             }
 
@@ -148,43 +156,43 @@ public class GraphFieldManager {
 
                     int midX = (from.x + to.x) / 2;
                     int midY = (from.y + to.y) / 2;
-                    g2.setColor(GUISettings.TITLE_COLOR);
+                    g2.setColor(TITLE_COLOR);
                     g2.drawString(edge.getWeight().toString(), midX, midY);
                 }
             }
 
             for (Vertex vertex : app.getGraph().getVertices()) {
-                int x = vertex.getX() - GUISettings.VERTEX_RADIUS;
-                int y = vertex.getY() - GUISettings.VERTEX_RADIUS;
+                int x = vertex.getX() - VERTEX_RADIUS;
+                int y = vertex.getY() - VERTEX_RADIUS;
                 g2.setColor(vertex.getColor());
-                g2.fillOval(x, y, GUISettings.VERTEX_RADIUS * 2, GUISettings.VERTEX_RADIUS * 2);
-                g2.setColor(GUISettings.TITLE_COLOR);
-                g2.drawString(vertex.getLabel(), vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() - (GUISettings.VERTEX_RADIUS + GUISettings.VERTEX_RADIUS / 2));
+                g2.fillOval(x, y, VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
+                g2.setColor(TITLE_COLOR);
+                g2.drawString(vertex.getLabel(), vertex.getX() - VERTEX_RADIUS / 2, vertex.getY() - (VERTEX_RADIUS + VERTEX_RADIUS / 2));
 
                 if (vertex.equals(firstVertex)) {
-                    g2.setColor(GUISettings.OUTLINE_SELECTED_VERTEX_COLOR);
-                    g2.drawOval(x, y, GUISettings.VERTEX_RADIUS * 2, GUISettings.VERTEX_RADIUS * 2);
+                    g2.setColor(OUTLINE_SELECTED_VERTEX_COLOR);
+                    g2.drawOval(x, y, VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
                 }
             }
 
 
-            if (app.isRunDijkstra()) {
-                DijkstraState state = app.getDijkstra().getState(app.getStateIndex());
+            if (app.getAlgorithmManager().isRun()) {
+                DijkstraState state = app.getAlgorithmManager().getState();
                 for (Vertex vertex : state.getDistances().keySet()) {
-                    g2.setColor(GUISettings.DISTANCE_COLOR);
-                    g2.drawString(state.getDistances().get(vertex) < Integer.MAX_VALUE ? String.valueOf(state.getDistances().get(vertex)) : "∞", vertex.getX() - GUISettings.VERTEX_RADIUS / 2, vertex.getY() + 2 * GUISettings.VERTEX_RADIUS);
+                    g2.setColor(DISTANCE_COLOR);
+                    g2.drawString(state.getDistances().get(vertex) < Integer.MAX_VALUE ? String.valueOf(state.getDistances().get(vertex)) : "∞", vertex.getX() - VERTEX_RADIUS / 2, vertex.getY() + 2 * VERTEX_RADIUS);
                 }
 
                 if (state.getInequality() != null) {
-                    g2.setColor(GUISettings.INEQUALITY_COLOR);
-                    g2.drawString(state.getInequality(), state.getNeighborVertex().getX() - GUISettings.VERTEX_RADIUS / 2 - 16, state.getNeighborVertex().getY() + 3 * GUISettings.VERTEX_RADIUS);
+                    g2.setColor(INEQUALITY_COLOR);
+                    g2.drawString(state.getInequality(), state.getNeighborVertex().getX() - VERTEX_RADIUS / 2 - 16, state.getNeighborVertex().getY() + 3 * VERTEX_RADIUS);
                 }
             }
             g2.dispose();
         }
 
         private Point getIntersection(Point from, Point to) {
-            int radius = GUISettings.VERTEX_RADIUS;
+            int radius = VERTEX_RADIUS;
             double dx = to.x - from.x;
             double dy = to.y - from.y;
             double dist = Math.sqrt(dx * dx + dy * dy);
@@ -194,7 +202,7 @@ public class GraphFieldManager {
         }
 
         private void drawArrow(Graphics2D g2, int x1, int y1, int x2, int y2) {
-            int arrowSize = GUISettings.ARROW_SIZE;
+            int arrowSize = ARROW_SIZE;
             double angle = Math.atan2(y2 - y1, x2 - x1);
             int x = (int) (x2 - arrowSize * Math.cos(angle - Math.PI / 6));
             int y = (int) (y2 - arrowSize * Math.sin(angle - Math.PI / 6));
@@ -230,16 +238,16 @@ public class GraphFieldManager {
                     }
                 } else if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 1) {
                     Edge edge = getEdgeAt(e.getPoint());
-                    if (edge != null) {
+                    if (edge != null ) {
                         String weightStr = CustomDialog.showInputDialog(graphField, "Edge Weight", "Enter Non-Negative Edge Weight:", 250, 125);
-                        if (weightStr != null) {
+                        if (weightStr != null && !weightStr.trim().isEmpty()) {
                             try {
                                 int weight = Integer.parseInt(weightStr);
                                 if (weight < 0) {
                                     CustomMessageDialog.showMessageDialog(graphField, "Error", "Edge weight must be non-negative.", 250, 100);
                                 } else {
                                     app.getGraph().setEdgeWeight(edge, weight);
-                                    app.resetRunDijkstra();
+                                    app.getAlgorithmManager().reset();
                                     graphField.repaint();
                                 }
                             } catch (NumberFormatException ex) {

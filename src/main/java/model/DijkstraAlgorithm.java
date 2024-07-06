@@ -8,7 +8,7 @@ public class DijkstraAlgorithm {
     private final Set<Vertex> visited;
     private final PriorityQueue<Vertex> queue;
 
-    private final List<String> logs;
+    private final List<String> steps;
     private final List<DijkstraState> states;
 
     public DijkstraAlgorithm(DirectedGraph graph) {
@@ -17,7 +17,7 @@ public class DijkstraAlgorithm {
         this.visited = new HashSet<>();
         this.queue = new PriorityQueue<>(Comparator.comparingInt(distances::get));
 
-        this.logs = new ArrayList<>();
+        this.steps = new ArrayList<>();
         this.states = new ArrayList<>();
 
         for (Vertex vertex : graph.getVertices()) {
@@ -25,20 +25,8 @@ public class DijkstraAlgorithm {
         }
     }
 
-    private void saveState(Vertex vertex, Edge edge, Vertex neighbor, String inequality) {
-        states.add(new DijkstraState(new HashMap<>(distances), new HashSet<>(visited), new ArrayList<>(logs), vertex, edge, neighbor, inequality));
-    }
-
-    public Integer getNumberStates() {
-        return states.size();
-    }
-
-    public DijkstraState getState(Integer index) {
-        return states.get(index);
-    }
-
     public void process(Vertex start) {
-        logs.add("Step 0:\n  The start of Dijkstra`s algorithm.\n");
+        steps.add("Step 0:\n  The start of Dijkstra`s algorithm.\n");
         saveState(null, null, null, null);
 
         distances.put(start, 0);
@@ -52,13 +40,13 @@ public class DijkstraAlgorithm {
             }
             visited.add(curr);
 
-            logs.add(String.format("\nStep %d:\n  Processing vertex (%s).\n", count, curr.getLabel()));
+            steps.add(String.format("\nStep %d:\n  Processing vertex (%s).\n", count, curr.getLabel()));
             saveState(curr, null, null, null);
 
             for (Edge edge : graph.getEdgesFrom(curr)) {
                 Vertex neighbor = edge.getToV();
                 if (!visited.contains(neighbor)) {
-                    logs.add(String.format("  Processing edge (%s -> %s).\n", curr.getLabel(), neighbor.getLabel()));
+                    steps.add(String.format("  Processing edge (%s -> %s).\n", curr.getLabel(), neighbor.getLabel()));
                     saveState(curr, edge, neighbor, null);
 
                     int newDist = distances.get(curr) + edge.getWeight();
@@ -66,21 +54,33 @@ public class DijkstraAlgorithm {
                     String stringDist = distances.get(neighbor) < Integer.MAX_VALUE ? distances.get(neighbor).toString() : "∞";
                     String inequality = distances.get(curr) + " + " + edge.getWeight() + stringSign + stringDist;
 
-                    logs.add(String.format("  Distance inequality: %s.\n", inequality));
+                    steps.add(String.format("  Distance inequality: %s.\n", inequality));
                     saveState(curr, edge, neighbor, inequality);
 
                     if (newDist < distances.get(neighbor)) {
                         distances.put(neighbor, newDist);
                         queue.add(neighbor);
 
-                        logs.add(String.format("  Relaxation of edge (%s -> %s) and updating the distance to vertex (%s): New distance = %d.\n", curr.getLabel(), neighbor.getLabel(), neighbor.getLabel(), newDist));
+                        steps.add(String.format("  Relaxation of edge (%s -> %s) and updating the distance to vertex (%s): New distance = %d.\n", curr.getLabel(), neighbor.getLabel(), neighbor.getLabel(), newDist));
                         saveState(curr, edge, neighbor, null);
                     }
                 }
             }
             count++;
         }
-        logs.add(String.format("\nStep %d: The end of Dijkstra's algorithm.\n", count));
+        steps.add(String.format("\nStep %d: The end of Dijkstra's algorithm.\n", count));
         saveState(null, null, null, null);
+    }
+
+    private void saveState(Vertex vertex, Edge edge, Vertex neighbor, String inequality) {
+        states.add(new DijkstraState(new HashMap<>(distances), new HashSet<>(visited), new ArrayList<>(steps), vertex, edge, neighbor, inequality));
+    }
+
+    public DijkstraState getState(Integer index) {
+        return states.get(index);
+    }
+
+    public Integer getNumberStates() {
+        return states.size();
     }
 }

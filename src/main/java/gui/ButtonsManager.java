@@ -1,5 +1,7 @@
 package gui;
 
+import static gui.Settings.*;
+
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
@@ -11,10 +13,10 @@ public class ButtonsManager {
     public JButton createButton(String iconPath, String toolTipText) {
         ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image img = icon.getImage();
-        Image resizedImg = img.getScaledInstance(GUISettings.BUTTON_SIZE, GUISettings.BUTTON_SIZE, Image.SCALE_SMOOTH);
+        Image resizedImg = img.getScaledInstance(BUTTON_SIZE, BUTTON_SIZE, Image.SCALE_SMOOTH);
         icon = new ImageIcon(resizedImg);
         JButton button = new JButton(icon);
-        button.setPreferredSize(new Dimension(GUISettings.BUTTON_SIZE, GUISettings.BUTTON_SIZE));
+        button.setPreferredSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setToolTipText(toolTipText);
@@ -22,7 +24,7 @@ public class ButtonsManager {
         button.setUI(new BasicButtonUI() {
             @Override
             protected void paintButtonPressed(Graphics g, AbstractButton b) {
-                g.setColor(GUISettings.PRESSED_BUTTON_COLOR);
+                g.setColor(PRESSED_BUTTON_COLOR);
                 g.fillRect(0, 0, b.getWidth(), b.getHeight());
             }
         });
@@ -32,8 +34,8 @@ public class ButtonsManager {
             public void mouseEntered(MouseEvent e) {
                 button.setContentAreaFilled(true);
                 button.setOpaque(true);
-                button.setBackground(GUISettings.MOUSE_ENTERED_BACKGROUND_COLOR);
-                button.setBorder(BorderFactory.createLineBorder(GUISettings.MOUSE_ENTERED_BORDER_COLOR));
+                button.setBackground(MOUSE_ENTERED_BACKGROUND_COLOR);
+                button.setBorder(BorderFactory.createLineBorder(MOUSE_ENTERED_BORDER_COLOR));
             }
 
             @Override
@@ -50,10 +52,10 @@ public class ButtonsManager {
     public JToggleButton createToggleButton(String iconPath, String toolTipText, ButtonGroup toggleGroup) {
         ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
         Image img = icon.getImage();
-        Image resizedImg = img.getScaledInstance(GUISettings.BUTTON_SIZE, GUISettings.BUTTON_SIZE, Image.SCALE_SMOOTH);
+        Image resizedImg = img.getScaledInstance(BUTTON_SIZE, BUTTON_SIZE, Image.SCALE_SMOOTH);
         icon = new ImageIcon(resizedImg);
         JToggleButton button = new JToggleButton(icon);
-        button.setPreferredSize(new Dimension(GUISettings.BUTTON_SIZE, GUISettings.BUTTON_SIZE));
+        button.setPreferredSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setToolTipText(toolTipText);
@@ -63,7 +65,7 @@ public class ButtonsManager {
             @Override
             protected void paintButtonPressed(Graphics g, AbstractButton b) {
                 if (b.isContentAreaFilled()) {
-                    g.setColor(GUISettings.PRESSED_BUTTON_COLOR);
+                    g.setColor(PRESSED_BUTTON_COLOR);
                     g.fillRect(0, 0, b.getWidth(), b.getHeight());
                 }
             }
@@ -75,8 +77,8 @@ public class ButtonsManager {
                 if (!button.isSelected()) {
                     button.setContentAreaFilled(true);
                     button.setOpaque(true);
-                    button.setBackground(GUISettings.MOUSE_ENTERED_BACKGROUND_COLOR);
-                    button.setBorder(BorderFactory.createLineBorder(GUISettings.MOUSE_ENTERED_BORDER_COLOR));
+                    button.setBackground(MOUSE_ENTERED_BACKGROUND_COLOR);
+                    button.setBorder(BorderFactory.createLineBorder(MOUSE_ENTERED_BORDER_COLOR));
                 }
             }
 
@@ -95,8 +97,8 @@ public class ButtonsManager {
             if (button.isSelected()) {
                 button.setContentAreaFilled(true);
                 button.setOpaque(true);
-                button.setBackground(GUISettings.PRESSED_BUTTON_COLOR);
-                button.setBorder(BorderFactory.createLineBorder(GUISettings.MOUSE_ENTERED_BORDER_COLOR));
+                button.setBackground(PRESSED_BUTTON_COLOR);
+                button.setBorder(BorderFactory.createLineBorder(MOUSE_ENTERED_BORDER_COLOR));
             } else {
                 button.setContentAreaFilled(false);
                 button.setOpaque(false);

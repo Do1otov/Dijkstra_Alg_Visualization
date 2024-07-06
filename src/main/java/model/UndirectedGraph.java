@@ -1,23 +1,11 @@
 package model;
 
-import java.util.List;
+import java.util.*;
 
 public class UndirectedGraph extends DirectedGraph {
     public UndirectedGraph() {
         super();
         this.isDirected = false;
-    }
-
-    @Override
-    public void setEdgeWeight(Edge edge, Integer weight) {
-        super.setEdgeWeight(edge, weight);
-        List<Edge> edgesFrom = super.getEdgesFrom(edge.getToV());
-        for (Edge e : edgesFrom) {
-            if (e.getToV().equals(edge.getFromV())) {
-                super.setEdgeWeight(e, weight);
-                break;
-            }
-        }
     }
 
     @Override
@@ -44,6 +32,18 @@ public class UndirectedGraph extends DirectedGraph {
         }
     }
 
+    @Override
+    public void setEdgeWeight(Edge edge, Integer weight) {
+        super.setEdgeWeight(edge, weight);
+        List<Edge> edgesFrom = super.getEdgesFrom(edge.getToV());
+        for (Edge e : edgesFrom) {
+            if (e.getToV().equals(edge.getFromV())) {
+                super.setEdgeWeight(e, weight);
+                break;
+            }
+        }
+    }
+
     public static UndirectedGraph fromJSON(String json) {
         DirectedGraph tempGraph = DirectedGraph.fromJSON(json);
         UndirectedGraph undirectedGraph = new UndirectedGraph();
@@ -56,7 +56,6 @@ public class UndirectedGraph extends DirectedGraph {
                 undirectedGraph.addEdge(edge);
             }
         }
-
         return undirectedGraph;
     }
 }

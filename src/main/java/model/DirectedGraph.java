@@ -1,6 +1,8 @@
 package model;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class DirectedGraph {
     private final Map<UUID, Vertex> vertices;
@@ -13,22 +15,6 @@ public class DirectedGraph {
         this.adjacencyList = new HashMap<>();
         this.isDirected = true;
         this.nextLabel = 1;
-    }
-
-    public void setEdgeWeight(Edge edge, Integer weight) {
-        edge.setWeight(weight);
-    }
-
-    public Vertex getVertexById(UUID id) {
-        return vertices.get(id);
-    }
-
-    public List<Vertex> getVertices() {
-        return new ArrayList<>(vertices.values());
-    }
-
-    public List<Edge> getEdgesFrom(Vertex vertex) {
-        return new ArrayList<>(adjacencyList.get(vertex));
     }
 
     public boolean isDirected() {
@@ -80,6 +66,31 @@ public class DirectedGraph {
         vertices.clear();
         adjacencyList.clear();
         nextLabel = 1;
+    }
+
+    public void setEdgeWeight(Edge edge, Integer weight) {
+        edge.setWeight(weight);
+    }
+
+    public List<Vertex> getVertices() {
+        return new ArrayList<>(vertices.values());
+    }
+
+    public List<Edge> getEdgesFrom(Vertex vertex) {
+        return new ArrayList<>(adjacencyList.get(vertex));
+    }
+
+    public Vertex getVertexById(UUID id) {
+        return vertices.get(id);
+    }
+
+    public Vertex getVertexByColor(Color color) {
+        for (Vertex vertex : vertices.values()) {
+            if (vertex.getColor().equals(color)) {
+                return vertex;
+            }
+        }
+        return null;
     }
 
     public String toJSON() {
