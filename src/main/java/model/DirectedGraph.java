@@ -93,6 +93,15 @@ public class DirectedGraph {
         return null;
     }
 
+    public Vertex getVertexByLabel(String label) {
+        for (Vertex vertex : vertices.values()) {
+            if (vertex.getLabel().equals(label)) {
+                return vertex;
+            }
+        }
+        return null;
+    }
+
     public String toJSON() {
         StringBuilder verticesJSON = new StringBuilder();
         StringBuilder edgesJSON = new StringBuilder();
