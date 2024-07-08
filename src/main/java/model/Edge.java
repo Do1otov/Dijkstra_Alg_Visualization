@@ -15,6 +15,13 @@ public class Edge {
         this.weight = 0;
         this.color = color;
     }
+    public Edge(Vertex fromV, Vertex toV, Color color, int weight) {
+        this.fromV = fromV;
+        this.toV = toV;
+        this.weight = weight;
+        this.color = color;
+    }
+
 
     public void setWeight(Integer weight) {
         this.weight = weight;
