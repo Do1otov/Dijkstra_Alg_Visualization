@@ -82,7 +82,7 @@ public class AlgorithmManager {
 
         reset();
         isRun = true;
-        if (app.getAlgorithmManager().getAlgoState())
+        if (app.getGraphFieldManager().getLastVertex() == null)
         {
             dijkstra = new DijkstraAlgorithm2(app.getGraph());
         }
