@@ -88,6 +88,12 @@ public class ControlPanelsManager {
         saveButton.addActionListener(e -> save());
         loadButton.addActionListener(e -> load());
 
+
+        JButton change_algo_button = buttonsManager.createButton("/gui_icons/load.png", "Load the Graph");
+        leftPanel.add(change_algo_button);
+        change_algo_button.addActionListener(e->switchAlgoType());
+
+
         app.add(controlPanelLeft, gbc);
     }
 
@@ -251,6 +257,14 @@ public class ControlPanelsManager {
         Image resizedImg = img.getScaledInstance(BUTTON_SIZE, BUTTON_SIZE, Image.SCALE_SMOOTH);
         button.setIcon(new ImageIcon(resizedImg));
         button.setToolTipText(tooltipText);
+    }
+
+    private void switchAlgoType() {
+        app.getGraphFieldManager().reset();
+        app.getGraph().clear();
+        app.getAlgorithmManager().reset();
+        app.getGraphFieldManager().getGraphField().repaint();
+        app.getAlgorithmManager().setAlgoState(!app.getAlgorithmManager().getAlgoState());
     }
 
     private static class RoundedPanel extends JPanel {

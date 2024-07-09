@@ -14,7 +14,10 @@ public class GraphFieldManager {
     private final JPanel graphField;
 
     private Vertex selectedVertex;
+
+    private Vertex LastVertex;
     private Vertex firstVertex;
+
     private Point initClick;
 
     public GraphFieldManager(App app) {
@@ -50,9 +53,18 @@ public class GraphFieldManager {
         return firstVertex;
     }
 
+    public void setLastVertex(Vertex vertex) {
+        this.LastVertex = vertex;
+    }
+
+    public Vertex getLastVertex() {
+        return LastVertex;
+    }
+
     public void reset() {
         this.selectedVertex = null;
         this.firstVertex = null;
+        this.LastVertex = null;
         this.initClick = null;
     }
 
@@ -173,8 +185,12 @@ public class GraphFieldManager {
                     g2.setColor(OUTLINE_SELECTED_VERTEX_COLOR);
                     g2.drawOval(x, y, VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
                 }
-            }
 
+                if (vertex.equals(LastVertex)) {
+                    g2.setColor(OUTLINE_SELECTED_SECOND_VERTEX_COLOR);
+                    g2.drawOval(x, y, VERTEX_RADIUS * 2, VERTEX_RADIUS * 2);
+                }
+            }
 
             if (app.getAlgorithmManager().isRun()) {
                 DijkstraState state = app.getAlgorithmManager().getState();
@@ -218,6 +234,10 @@ public class GraphFieldManager {
         @Override
         public void mouseClicked(MouseEvent e) {
             if (app.getControlPanelsManager().getEditButton().isSelected()) {
+                if (SwingUtilities.isMiddleMouseButton(e) && e.getClickCount() == 1) {
+                    LastVertex = getVertexAt(e.getPoint());
+                    graphField.repaint();
+                }
                 if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1) {
                     if (firstVertex == null) {
                         firstVertex = getVertexAt(e.getPoint());
@@ -238,7 +258,7 @@ public class GraphFieldManager {
                     }
                 } else if (SwingUtilities.isRightMouseButton(e) && e.getClickCount() == 1) {
                     Edge edge = getEdgeAt(e.getPoint());
-                    if (edge != null ) {
+                    if (edge != null) {
                         String weightStr = CustomDialog.showInputDialog(graphField, "Edge Weight", "Enter Non-Negative Edge Weight:", 250, 125);
                         if (weightStr != null && !weightStr.trim().isEmpty()) {
                             try {
@@ -268,10 +288,9 @@ public class GraphFieldManager {
                         }
                     }
                 }
-            }
-            graphField.repaint();
-        }
 
+            }
+        }
         @Override
         public void mousePressed(MouseEvent e) {
             if (SwingUtilities.isLeftMouseButton(e)) {

@@ -12,11 +12,13 @@ public class AlgorithmManager {
     private DijkstraAlgorithm dijkstra;
     private boolean isRun;
     private Integer stateIndex;
+    private boolean algoState;
 
     public AlgorithmManager(App app) {
         this.app = app;
         this.isRun = false;
         this.stateIndex = 0;
+        this.algoState = false;
     }
 
     public DijkstraState getState() {
@@ -71,6 +73,8 @@ public class AlgorithmManager {
 
     private void run() {
         Vertex startVertex = app.getGraphFieldManager().getFirstVertex();
+        Vertex LastVertex = app.getGraphFieldManager().getLastVertex();
+
         if (startVertex == null) {
             CustomMessageDialog.showMessageDialog(app.getGraphFieldManager().getGraphField(), "Error", "Start vertex is not selected.", 250, 100);
             return;
@@ -78,12 +82,26 @@ public class AlgorithmManager {
 
         reset();
         isRun = true;
-        dijkstra = new DijkstraAlgorithm(app.getGraph());
-        dijkstra.process(startVertex);
+        if (app.getAlgorithmManager().getAlgoState())
+        {
+            dijkstra = new DijkstraAlgorithm2(app.getGraph());
+        }
+        else
+        {
+            dijkstra = new DijkstraAlgorithm1(app.getGraph());
+        }
+        dijkstra.process(startVertex, LastVertex);
     }
 
     private void update() {
         app.getStepsFieldManager().display();
         app.getGraphFieldManager().getGraphField().repaint();
+    }
+
+    public void setAlgoState(boolean b) {
+        this.algoState = b;
+    }
+    public boolean getAlgoState() {
+        return this.algoState;
     }
 }

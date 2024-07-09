@@ -29,6 +29,7 @@ public class Settings {
     public static final Color VERTEX_COLOR = Color.GRAY;
     public static final Color EDGE_COLOR = Color.GRAY;
     public static final Color OUTLINE_SELECTED_VERTEX_COLOR = Color.RED;
+    public static final Color OUTLINE_SELECTED_SECOND_VERTEX_COLOR = Color.GREEN;
 
     public static final Integer ARROW_SIZE = 10;
 

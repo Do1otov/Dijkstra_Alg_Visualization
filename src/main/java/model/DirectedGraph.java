@@ -80,6 +80,21 @@ public class DirectedGraph {
         return new ArrayList<>(adjacencyList.get(vertex));
     }
 
+    public List<Edge> getEdgesTo(Vertex vertex) {
+        List<Edge> edgesTo = new ArrayList<>();
+
+            for (Vertex v : adjacencyList.keySet()) {
+                for (Edge edge : adjacencyList.get(v)) {
+                    if (edge.getToV().equals(vertex)) {
+                        edgesTo.add(edge);
+                    }
+                }
+            }
+
+        return edgesTo;
+    }
+
+
     public Vertex getVertexById(UUID id) {
         return vertices.get(id);
     }

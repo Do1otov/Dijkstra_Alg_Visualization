@@ -2,7 +2,8 @@ package model;
 
 import java.util.*;
 
-public class UndirectedGraph extends DirectedGraph {
+public class
+UndirectedGraph extends DirectedGraph {
     public UndirectedGraph() {
         super();
         this.isDirected = false;
