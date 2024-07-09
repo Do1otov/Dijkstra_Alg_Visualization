@@ -5,17 +5,25 @@ public class DijkstraAlgorithm1 extends DijkstraAlgorithm{
     private final Map<Vertex, Integer> forward_distances;
     private final Map<Vertex, Integer> backward_distances;
 
+
     private final Set<Vertex> forward_visited;
     private final Set<Vertex> backward_visited;
 
     private final PriorityQueue<Vertex> forward_queue;
     private final PriorityQueue<Vertex> backward_queue;
 
+
+    private final Map<Vertex, Vertex> forward_paths;
+    private final Map<Vertex, Vertex> backward_paths;
+
     private final List<String> steps;
     private final List<DijkstraState> states;
 
     public DijkstraAlgorithm1(DirectedGraph graph) {
         super(graph);
+        this.forward_paths  = new HashMap<>();
+        this.backward_paths = new HashMap<>();
+
         this.forward_distances = new HashMap<>();
         this.forward_visited = new HashSet<>();
         this.forward_queue = new PriorityQueue<>(Comparator.comparingInt(forward_distances::get));
@@ -23,7 +31,7 @@ public class DijkstraAlgorithm1 extends DijkstraAlgorithm{
 
         this.backward_distances = new HashMap<>();
         this.backward_visited = new HashSet<>();
-        this.backward_queue = new PriorityQueue<>(Comparator.comparingInt(forward_distances::get));
+        this.backward_queue = new PriorityQueue<>(Comparator.comparingInt(backward_distances::get));
 
         this.steps = new ArrayList<>();
         this.states = new ArrayList<>();
@@ -51,14 +59,16 @@ public class DijkstraAlgorithm1 extends DijkstraAlgorithm{
                 }
             }
 
-            System.out.println("Label_end = " + end.getLabel());
+           // System.out.println("Label_end = " + end.getLabel());
         }
 
         forward_distances.put(start, 0);
         forward_queue.add(start);
+        forward_paths.put(start, null);
 
         backward_distances.put(end, 0);
         backward_queue.add(end);
+        backward_paths.put(end, null);
 
         int count = 1;
         boolean f = false;
@@ -69,28 +79,11 @@ public class DijkstraAlgorithm1 extends DijkstraAlgorithm{
             Vertex forward_v = forward_queue.peek();
             Vertex backward_v = backward_queue.peek();
 
-            //if (forward_visited.contains(backward_v)) {
-                //    forward_queue.poll();
-                //    continue;
-                //}
-            //
-            //if (backward_visited.contains(forward_v)) {
-                //    backward_queue.poll();
-                //    continue;
-                //}
-
-
-            //if (forward_v == backward_v)
-            //{
-//
-            //    System.out.println("END");
-            //    break;
-            //}
 
             int forward_dist = forward_distances.get(forward_v);
             int backward_dist = backward_distances.get(backward_v);
 
-
+            //System.out.println("forward_dist " + forward_dist + "backward_dist " + backward_dist);
             if(forward_dist <= backward_dist)
             {   steps.add(String.format("\nStep %d:\n  Processing vertex (%s).\n", count, forward_v.getLabel()));
                 saveState(forward_v, null, null, null);
@@ -112,6 +105,7 @@ public class DijkstraAlgorithm1 extends DijkstraAlgorithm{
                         steps.add(String.format("  Distance inequality: %s.\n", inequality));
                         saveState(forward_v, edge, neighbor, inequality);
                         if (newDist < forward_distances.get(neighbor)) {
+                            forward_paths.put(neighbor, forward_v);
                             forward_distances.put(neighbor, newDist);
                             forward_queue.add(neighbor);
                             steps.add(String.format("  Relaxation of edge (%s -> %s) and updating the distance to vertex (%s): New distance = %d.\n", forward_v.getLabel(), neighbor.getLabel(), neighbor.getLabel(), newDist));
@@ -153,9 +147,10 @@ public class DijkstraAlgorithm1 extends DijkstraAlgorithm{
                         saveState(backward_v, edge, neighbor, inequality);
 
                         if (newDist < backward_distances.get(neighbor)) {
+
+                            backward_paths.put(neighbor, backward_v);
                             backward_distances.put(neighbor, newDist);
                             backward_queue.add(neighbor);
-
                             steps.add(String.format("  Relaxation of edge (%s <- %s) and updating the distance to vertex (%s): New distance = %d.\n", backward_v.getLabel(), neighbor.getLabel(), neighbor.getLabel(), newDist));
                             saveState(backward_v, edge, neighbor, null);
                         }
@@ -175,10 +170,16 @@ public class DijkstraAlgorithm1 extends DijkstraAlgorithm{
         //post_process
         if (middle==null)
         {
+
+            steps.add("\n Answer : No Path \n");
+            saveState(null, null, null, null);
             System.out.println("Path not found");
             return;
         }
+
         int min_len = forward_distances.get(middle) + backward_distances.get(middle);
+
+        String path = restorePath(forward_paths, middle, true) + "--" + restorePath(backward_paths, middle, false);
 
         for (Map.Entry<Vertex, Integer> entry : forward_distances.entrySet())
         {
@@ -186,17 +187,51 @@ public class DijkstraAlgorithm1 extends DijkstraAlgorithm{
             {
                 if (backward_distances.get(e.getToV()) != Integer.MAX_VALUE && forward_distances.get(e.getFromV()) != Integer.MAX_VALUE)
                 {
+                    steps.add("\n Check edge : \n" + e.getFromV().getLabel() +  "-->" + e.getToV().getLabel());
+                    saveState(e.getFromV(), e, e.getToV(), null);
+
                     int current_dist = forward_distances.get(e.getFromV()) + backward_distances.get(e.getToV()) + e.getWeight();
+
                     if (current_dist < min_len) {
+
+                        steps.add(String.format("\n More optimal solution found -->> : \n  Path : %s. Path length : %d \n", path, min_len));
+                        saveState(null, null, null, null);
                         System.out.println("More optimal solution found -->> " + current_dist);
                         min_len = current_dist;
+                        Vertex u = e.getToV();
+                        Vertex v = e.getFromV();
+                        path = restorePath(forward_paths, v, true) + "--" + restorePath(backward_paths, u, false);
                     }
                 }
             }
         }
 
-        System.out.println("Answer = " +  min_len);
+        steps.add(String.format("\n Answer : \n  Path : %s. Path length : %d \n", path, min_len));
+        saveState(null, null, null, null);
 
+        System.out.println("Answer = " +  min_len);
+        System.out.println("Path = " +  path);
+
+    }
+
+    protected String restorePath(Map<Vertex, Vertex> paths, Vertex start, boolean is_forward)
+    {
+        String s = "";
+        Vertex current = start;
+        while (paths.containsKey(current) && current != null) {
+            if (!is_forward) {
+                String label = current.getLabel();
+                s = s + label + "-";
+                current = paths.get(current);
+            }
+            else
+            {
+                String label = current.getLabel();
+                s = label + "-" + s;
+                current = paths.get(current);
+            }
+        }
+        return s;
     }
 
     protected void saveState(Vertex vertex, Edge edge, Vertex neighbor, String inequality) {

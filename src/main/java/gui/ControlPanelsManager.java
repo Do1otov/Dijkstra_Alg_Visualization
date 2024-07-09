@@ -89,7 +89,7 @@ public class ControlPanelsManager {
         loadButton.addActionListener(e -> load());
 
 
-        JButton change_algo_button = buttonsManager.createButton("/gui_icons/load.png", "Load the Graph");
+        JButton change_algo_button = buttonsManager.createButton("/gui_icons/switch.png", "Load the Graph");
         leftPanel.add(change_algo_button);
         change_algo_button.addActionListener(e->switchAlgoType());
 

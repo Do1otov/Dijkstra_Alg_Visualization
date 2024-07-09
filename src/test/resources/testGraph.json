@@ -1,0 +1,1 @@
+{"isDirected":true,"nextLabel":3,"vertices":[{"id":"73eb3ddf-2210-4800-8943-4e901c48fe90","label":"1","x":1,"y":2,"color":"-16777216"},{"id":"20dd7d11-a23f-4e55-a1dd-96e08e2817dc","label":"2","x":2,"y":3,"color":"-256"}],"edges":[{"from":"73eb3ddf-2210-4800-8943-4e901c48fe90","to":"20dd7d11-a23f-4e55-a1dd-96e08e2817dc","weight":0,"color":"-16777216"}]}
